@@ -5,6 +5,9 @@
 package co.uts.duts;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.util.Arrays;
+import javax.swing.JOptionPane;
 
 public class InicioSesion extends javax.swing.JFrame {
 
@@ -31,7 +34,7 @@ public class InicioSesion extends javax.swing.JFrame {
         etiquetaTitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         etiquetaTitulo.setText("Iniciar sesión");
 
-        etiquetaUsuario.setText("Usuario");
+        etiquetaUsuario.setText("Código estudiantil o correo");
 
         campoUsuario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -50,6 +53,11 @@ public class InicioSesion extends javax.swing.JFrame {
         botonIngresar.setBackground(new java.awt.Color(52, 83, 31));
         botonIngresar.setForeground(new java.awt.Color(255, 255, 255));
         botonIngresar.setText("Ingresar");
+        botonIngresar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonIngresarActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -94,6 +102,26 @@ public class InicioSesion extends javax.swing.JFrame {
     private void campoContrasenaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_campoContrasenaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_campoContrasenaActionPerformed
+
+    private void botonIngresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonIngresarActionPerformed
+        char[] contrasena = campoContrasena.getPassword();
+        try {
+            Estudiante estudiante = Estudiante.iniciarSesion(campoUsuario.getText(), new String(contrasena));
+            if (estudiante != null) {
+                JOptionPane.showMessageDialog(this, "Bienvenido/a, " + estudiante.getNombre() + ".");
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.",
+                        "No se pudo iniciar sesión", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "No se pudieron consultar los usuarios: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            Arrays.fill(contrasena, '\0');
+            campoContrasena.setText("");
+        }
+    }//GEN-LAST:event_botonIngresarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton botonIngresar;

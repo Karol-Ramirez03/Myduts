@@ -5,6 +5,9 @@
 package co.uts.duts;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.util.Arrays;
+import javax.swing.JOptionPane;
 
 public class Registro extends javax.swing.JFrame {
 
@@ -46,6 +49,11 @@ public class Registro extends javax.swing.JFrame {
         botonRegistrar.setBackground(new java.awt.Color(52, 83, 31));
         botonRegistrar.setForeground(new java.awt.Color(255, 255, 255));
         botonRegistrar.setText("Registrarme");
+        botonRegistrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonRegistrarActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -94,6 +102,31 @@ public class Registro extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void botonRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRegistrarActionPerformed
+        char[] contrasena = campoContrasena.getPassword();
+        try {
+            Estudiante estudiante = new Estudiante(campoNombre.getText().trim(), campoCodigo.getText().trim(),
+                    campoCorreo.getText().trim(), new String(contrasena));
+            if (Estudiante.registrar(estudiante)) {
+                JOptionPane.showMessageDialog(this,
+                        "Cuenta creada para " + estudiante.getNombre() + ". Ya puedes iniciar sesión.",
+                        "Registro completado", JOptionPane.INFORMATION_MESSAGE);
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "El código o el correo ya están registrados.",
+                        "Cuenta existente", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Revisa los datos", JOptionPane.WARNING_MESSAGE);
+        } catch (IOException | ClassNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "No se pudo guardar el usuario: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            Arrays.fill(contrasena, '\0');
+            campoContrasena.setText("");
+        }
+    }//GEN-LAST:event_botonRegistrarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton botonRegistrar;
