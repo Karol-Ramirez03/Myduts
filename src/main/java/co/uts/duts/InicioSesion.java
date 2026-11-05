@@ -50,6 +50,7 @@ public class InicioSesion extends javax.swing.JFrame {
         botonIngresar.setBackground(new java.awt.Color(52, 83, 31));
         botonIngresar.setForeground(new java.awt.Color(255, 255, 255));
         botonIngresar.setText("Ingresar");
+        botonIngresar.addActionListener(evt -> ingresar());
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -88,12 +89,26 @@ public class InicioSesion extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void campoUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_campoUsuarioActionPerformed
-        // TODO add your handling code here:
+        ingresar();
     }//GEN-LAST:event_campoUsuarioActionPerformed
 
     private void campoContrasenaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_campoContrasenaActionPerformed
-        // TODO add your handling code here:
+        ingresar();
     }//GEN-LAST:event_campoContrasenaActionPerformed
+
+    private void ingresar() {
+        try {
+            Usuario usuario = new EstudianteDAO().autenticar(campoUsuario.getText().trim(), new String(campoContrasena.getPassword()));
+            if (usuario == null) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.", "No se pudo ingresar", javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            javax.swing.JOptionPane.showMessageDialog(this, "Bienvenido, " + usuario.getNombre() + ".");
+            dispose();
+        } catch (java.sql.SQLException ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, "No se pudo consultar SQLite: " + ex.getMessage(), "Error de base de datos", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton botonIngresar;

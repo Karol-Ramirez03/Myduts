@@ -46,6 +46,7 @@ public class Registro extends javax.swing.JFrame {
         botonRegistrar.setBackground(new java.awt.Color(52, 83, 31));
         botonRegistrar.setForeground(new java.awt.Color(255, 255, 255));
         botonRegistrar.setText("Registrarme");
+        botonRegistrar.addActionListener(evt -> registrar());
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -94,6 +95,33 @@ public class Registro extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void registrar() {
+        String nombre = campoNombre.getText().trim();
+        String codigo = campoCodigo.getText().trim();
+        String correo = campoCorreo.getText().trim();
+        String contrasena = new String(campoContrasena.getPassword());
+        if (nombre.isEmpty() || codigo.isEmpty() || correo.isEmpty() || contrasena.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Completa todos los campos.", "Validación", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if (!correo.contains("@")) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Ingresa un correo válido.", "Validación", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        try {
+            EstudianteDAO dao = new EstudianteDAO();
+            if (dao.existeCorreoOCodigo(correo, codigo)) {
+                javax.swing.JOptionPane.showMessageDialog(this, "El correo o código ya están registrados.", "Registro duplicado", javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            dao.registrar(nombre, codigo, correo, contrasena);
+            javax.swing.JOptionPane.showMessageDialog(this, "Cuenta creada. Ya puedes iniciar sesión.");
+            dispose();
+        } catch (java.sql.SQLException ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, "No se pudo guardar en SQLite: " + ex.getMessage(), "Error de base de datos", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton botonRegistrar;
