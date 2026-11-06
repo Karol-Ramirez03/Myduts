@@ -8,17 +8,6 @@ public class Main {
          BaseDatos.inicializar();
          PantallaInicial pti= new PantallaInicial();
          pti.setVisible(true);
-        // try {
-        //     BaseDatos.inicializar();
-        //     javax.swing.SwingUtilities.invokeLater(() -> new PantallaInicial().setVisible(true));
-        // } catch (RuntimeException ex) {
-        //     ex.printStackTrace();
-        //     javax.swing.SwingUtilities.invokeLater(() -> javax.swing.JOptionPane.showMessageDialog(
-        //             null,
-        //             "No se pudo iniciar MyDUTS. Verifica que la carpeta de datos sea accesible.\n\n"
-        //                     + ex.getMessage(),
-        //             "Error al iniciar MyDUTS",
-        //             javax.swing.JOptionPane.ERROR_MESSAGE));
-        // }
+
     }
 }

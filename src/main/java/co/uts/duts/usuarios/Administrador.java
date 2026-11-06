@@ -17,9 +17,9 @@ import java.util.List;
 public class Administrador extends Usuario {
     private LocalDateTime ultimoAcceso;
 
-    public Administrador(long id, String nombre, String codigo, String correo, String contrasenaHash,
+    public Administrador(long id, String nombre, String codigo, String correo, String contrasena,
                          boolean activo, LocalDateTime ultimoAcceso) {
-        super(id, nombre, codigo, correo, contrasenaHash, activo);
+        super(id, nombre, codigo, correo, contrasena, activo);
         this.ultimoAcceso = ultimoAcceso;
     }
 

@@ -1,7 +1,6 @@
 package co.uts.duts.duts;
 
 
-import co.uts.duts.seguridad.Seguridad;
 import co.uts.duts.usuarios.Estudiante;
 import co.uts.duts.validacion.SaldoInsuficienteException;
 import co.uts.duts.validacion.ValidacionException;
@@ -29,18 +28,18 @@ public class Cuenta {
     private int saldoDuts;
     private int dutsAcumulados;
     private int saldoMinimoAlerta;
-    private String pinHash;
+    private String pin;
     private final List<Movimiento> movimientos = new ArrayList<>();
 
     public Cuenta() {
         this(0, 0, SALDO_MINIMO_POR_DEFECTO, null);
     }
 
-    public Cuenta(int saldoDuts, int dutsAcumulados, int saldoMinimoAlerta, String pinHash) {
+    public Cuenta(int saldoDuts, int dutsAcumulados, int saldoMinimoAlerta, String pin) {
         this.saldoDuts = saldoDuts;
         this.dutsAcumulados = dutsAcumulados;
         this.saldoMinimoAlerta = saldoMinimoAlerta;
-        this.pinHash = pinHash;
+        this.pin = pin;
     }
 
     // ---- operaciones sobre el saldo ----
@@ -73,15 +72,15 @@ public class Cuenta {
 
     // ---- PIN de confirmación ----
 
-    public boolean tienePin() { return pinHash != null; }
+    public boolean tienePin() { return pin != null; }
 
     public void establecerPin(String pin) throws ValidacionException {
         Validador.pinValido(pin);
-        this.pinHash = Seguridad.hash(pin);
+        this.pin = pin;
     }
 
     public boolean validarPin(String pin) {
-        return pinHash != null && pin != null && pinHash.equals(Seguridad.hash(pin));
+        return this.pin != null && pin != null && this.pin.equals(pin);
     }
 
     // ---- promedios de DUTS recibidos por periodo ----
@@ -118,7 +117,7 @@ public class Cuenta {
     public int getSaldoDuts() { return saldoDuts; }
     public int getDutsAcumulados() { return dutsAcumulados; }
     public int getSaldoMinimoAlerta() { return saldoMinimoAlerta; }
-    public String getPinHash() { return pinHash; }
+    public String getPin() { return pin; }
     public long getIdPropietario() { return idPropietario; }
     public void setIdPropietario(long idPropietario) { this.idPropietario = idPropietario; }
 

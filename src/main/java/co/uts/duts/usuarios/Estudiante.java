@@ -4,7 +4,6 @@ package co.uts.duts.usuarios;
 import co.uts.duts.duts.Cuenta;
 import co.uts.duts.duts.ServicioDuts;
 import co.uts.duts.duts.Transferencia;
-import co.uts.duts.seguridad.Seguridad;
 import co.uts.duts.validacion.SaldoInsuficienteException;
 import co.uts.duts.validacion.ValidacionException;
 import co.uts.duts.validacion.Validador;
@@ -23,18 +22,18 @@ public class Estudiante extends Usuario {
     private final Cuenta cuenta;
 
     /** Estudiante leído de la base de datos. */
-    public Estudiante(long id, String nombre, String codigo, String correo, String contrasenaHash,
+    public Estudiante(long id, String nombre, String codigo, String correo, String contrasena,
                       boolean activo, LocalDateTime fechaRegistro, String rutaFoto, Cuenta cuenta) {
-        super(id, nombre, codigo, correo, contrasenaHash, activo);
+        super(id, nombre, codigo, correo, contrasena, activo);
         this.fechaRegistro = fechaRegistro;
         this.rutaFoto = rutaFoto;
         this.cuenta = cuenta != null ? cuenta : new Cuenta();
         this.cuenta.setIdPropietario(id);
     }
 
-    /** Estudiante nuevo: la contraseña se guarda cifrada. */
+    /** Crea un estudiante nuevo. */
     public Estudiante(String nombre, String codigo, String correo, String contrasena) {
-        this(0, nombre, codigo, correo, Seguridad.hash(contrasena), true, LocalDateTime.now(), null, new Cuenta());
+        this(0, nombre, codigo, correo, contrasena, true, LocalDateTime.now(), null, new Cuenta());
     }
 
     @Override

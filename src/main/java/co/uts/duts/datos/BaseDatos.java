@@ -1,7 +1,6 @@
 package co.uts.duts.datos;
 
 
-import co.uts.duts.seguridad.Seguridad;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -182,7 +181,7 @@ public final class BaseDatos {
         String sql = "INSERT OR IGNORE INTO estudiante (codigo_estudiantil, nombre_completo, correo, contrasena_hash, rol, fecha_registro) "
                 + "VALUES ('ADMIN', 'Administrador UTS', 'admin@uts.edu.co', ?, 'ADMIN', ?)";
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setString(1, Seguridad.hash("admin123"));
+            ps.setString(1, "admin123");
             ps.setString(2, LocalDateTime.now().format(FORMATO_FECHA));
             ps.executeUpdate();
         }

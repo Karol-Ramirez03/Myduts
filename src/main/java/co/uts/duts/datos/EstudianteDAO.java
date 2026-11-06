@@ -2,7 +2,6 @@ package co.uts.duts.datos;
 
 
 import co.uts.duts.duts.Cuenta;
-import co.uts.duts.seguridad.Seguridad;
 import co.uts.duts.usuarios.Administrador;
 import co.uts.duts.usuarios.Estudiante;
 import co.uts.duts.usuarios.Gestionable;
@@ -34,7 +33,7 @@ public class EstudianteDAO implements Gestionable<Estudiante> {
         try (Connection conexion = ConexionSQLite.abrir(); PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setString(1, usuario);
             ps.setString(2, usuario);
-            ps.setString(3, Seguridad.hash(contrasena));
+            ps.setString(3, contrasena);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? mapear(rs) : null;
             }
@@ -77,11 +76,11 @@ public class EstudianteDAO implements Gestionable<Estudiante> {
             ps.setString(1, e.getCodigo());
             ps.setString(2, e.getNombre());
             ps.setString(3, e.getCorreo());
-            ps.setString(4, e.getContrasenaHash());
+            ps.setString(4, e.getContrasena());
             ps.setInt(5, c.getSaldoDuts());
             ps.setInt(6, c.getDutsAcumulados());
             ps.setInt(7, c.getSaldoMinimoAlerta());
-            ps.setString(8, c.getPinHash());
+            ps.setString(8, c.getPin());
             ps.setString(9, e.getRutaFoto());
             ps.setString(10, e.getFechaRegistro().format(BaseDatos.FORMATO_FECHA));
             boolean ok = ps.executeUpdate() > 0;
@@ -150,7 +149,7 @@ public class EstudianteDAO implements Gestionable<Estudiante> {
             ps.setInt(1, c.getSaldoDuts());
             ps.setInt(2, c.getDutsAcumulados());
             ps.setInt(3, c.getSaldoMinimoAlerta());
-            ps.setString(4, c.getPinHash());
+            ps.setString(4, c.getPin());
             ps.setLong(5, e.getId());
             ps.executeUpdate();
         }
@@ -194,16 +193,16 @@ public class EstudianteDAO implements Gestionable<Estudiante> {
         String nombre = rs.getString("nombre_completo");
         String codigo = rs.getString("codigo_estudiantil");
         String correo = rs.getString("correo");
-        String hash = rs.getString("contrasena_hash");
+        String contrasena = rs.getString("contrasena_hash");
         boolean activo = rs.getInt("activo") == 1;
         LocalDateTime fecha = parseFecha(rs.getString("fecha_registro"));
 
         if ("ADMIN".equals(rs.getString("rol"))) {
-            return new Administrador(id, nombre, codigo, correo, hash, activo, null);
+            return new Administrador(id, nombre, codigo, correo, contrasena, activo, null);
         }
         Cuenta cuenta = new Cuenta(rs.getInt("saldo_duts"), rs.getInt("duts_acumulados"),
                 rs.getInt("saldo_minimo_alerta"), rs.getString("pin_hash"));
-        return new Estudiante(id, nombre, codigo, correo, hash, activo, fecha, rs.getString("ruta_foto"), cuenta);
+        return new Estudiante(id, nombre, codigo, correo, contrasena, activo, fecha, rs.getString("ruta_foto"), cuenta);
     }
 
     static LocalDateTime parseFecha(String texto) {

@@ -1,7 +1,6 @@
 package co.uts.duts.usuarios;
 
 
-import co.uts.duts.seguridad.Seguridad;
 import co.uts.duts.validacion.ValidacionException;
 import co.uts.duts.validacion.Validador;
 import java.util.List;
@@ -15,21 +14,21 @@ public abstract class Usuario implements Autenticable {
     protected String nombre;
     protected String codigo;
     protected String correo;
-    private String contrasenaHash;
+    private String contrasena;
     protected boolean activo;
 
-    protected Usuario(long id, String nombre, String codigo, String correo, String contrasenaHash, boolean activo) {
+    protected Usuario(long id, String nombre, String codigo, String correo, String contrasena, boolean activo) {
         this.id = id;
         this.nombre = nombre;
         this.codigo = codigo;
         this.correo = correo;
-        this.contrasenaHash = contrasenaHash;
+        this.contrasena = contrasena;
         this.activo = activo;
     }
 
     @Override
     public boolean autenticar(String contrasena) {
-        return contrasena != null && Seguridad.hash(contrasena).equals(contrasenaHash);
+        return contrasena != null && contrasena.equals(this.contrasena);
     }
 
     @Override
@@ -37,7 +36,7 @@ public abstract class Usuario implements Autenticable {
         if (!autenticar(actual) || nueva == null || nueva.length() < 6) {
             return false;
         }
-        this.contrasenaHash = Seguridad.hash(nueva);
+        this.contrasena = nueva;
         return true;
     }
 
@@ -71,7 +70,7 @@ public abstract class Usuario implements Autenticable {
     public String getNombre() { return nombre; }
     public String getCodigo() { return codigo; }
     public String getCorreo() { return correo; }
-    public String getContrasenaHash() { return contrasenaHash; }
+    public String getContrasena() { return contrasena; }
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
 }
