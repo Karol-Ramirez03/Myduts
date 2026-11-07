@@ -8,6 +8,8 @@ import co.uts.duts.validacion.SaldoInsuficienteException;
 import co.uts.duts.validacion.ValidacionException;
 import co.uts.duts.validacion.Validador;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 /** Operaciones de DUTS guardadas en los archivos de texto de la aplicación. */
@@ -15,18 +17,26 @@ public class ServicioDuts {
     private final EstudianteArchivoRepository usuarios = new EstudianteArchivoRepository();
     private final MovimientoArchivoRepository movimientos = new MovimientoArchivoRepository();
 
+    /** Valida una transferencia y la devuelve sin aplicarla ni guardarla. */
+    public synchronized Transferencia previsualizarTransferencia(long idOrigen, String correoDestino, int monto)
+            throws IOException, ValidacionException, SaldoInsuficienteException {
+        List<Usuario> lista = usuarios.listar();
+        Estudiante origen = estudiantePorId(lista, idOrigen);
+        Estudiante destino = estudiantePorCorreo(lista, correoDestino);
+        if (origen == null || !origen.isActivo()) {
+            throw new ValidacionException("origen", "La cuenta de estudiante no existe o está inactiva.");
+        }
+        if (destino == null || !destino.isActivo()) {
+            throw new ValidacionException("destino", "No se encontró un estudiante activo con ese correo.");
+        }
+        return origen.enviarDuts(destino, monto);
+    }
+
     public synchronized Transferencia transferir(long idOrigen, String correoDestino, int monto)
             throws IOException, ValidacionException, SaldoInsuficienteException {
         List<Usuario> lista = usuarios.listar();
         Estudiante origen = estudiantePorId(lista, idOrigen);
-        Estudiante destino = null;
-        for (Usuario usuario : lista) {
-            if (usuario instanceof Estudiante
-                    && usuario.getCorreo().equalsIgnoreCase(correoDestino.trim())) {
-                destino = (Estudiante) usuario;
-                break;
-            }
-        }
+        Estudiante destino = estudiantePorCorreo(lista, correoDestino);
         if (origen == null || !origen.isActivo()) {
             throw new ValidacionException("origen", "La cuenta de estudiante no existe o está inactiva.");
         }
@@ -128,6 +138,34 @@ public class ServicioDuts {
         return movimientos.listarPorEstudiante(idEstudiante);
     }
 
+    /** Filtra el historial a los últimos meses e, opcionalmente, por correo del destinatario. */
+    public List<Movimiento> filtrarMovimientos(long idEstudiante, int meses, String correoDestino)
+            throws IOException, ValidacionException {
+        if (meses < 1) {
+            throw new ValidacionException("meses", "Indica un número de meses mayor que cero.");
+        }
+        LocalDateTime desde = LocalDateTime.now().minusMonths(meses);
+        String correoFiltro = correoDestino == null ? "" : correoDestino.trim();
+        List<Movimiento> resultado = new java.util.ArrayList<>();
+        for (Movimiento movimiento : movimientos.listarPorEstudiante(idEstudiante)) {
+            if (movimiento.getFecha().isBefore(desde)) continue;
+            if (!correoFiltro.isEmpty()) {
+                if (!"TRANSFERENCIA".equals(movimiento.getTipo())
+                        || movimiento.getIdOrigen() == null || movimiento.getIdOrigen() != idEstudiante
+                        || movimiento.getIdDestino() == null) continue;
+                Usuario destinatario = usuarios.consultar(movimiento.getIdDestino());
+                if (destinatario == null || !destinatario.getCorreo().equalsIgnoreCase(correoFiltro)) continue;
+            }
+            resultado.add(movimiento);
+        }
+        resultado.sort(Comparator.comparing(Movimiento::getFecha).reversed());
+        return resultado;
+    }
+
+    public Usuario consultarUsuario(long id) throws IOException {
+        return usuarios.consultar(id);
+    }
+
     public void guardarCuenta(Estudiante estudiante) throws IOException {
         usuarios.guardarUsuario(estudiante);
     }
@@ -139,6 +177,16 @@ public class ServicioDuts {
     private Estudiante estudiantePorId(List<Usuario> lista, long id) {
         for (Usuario usuario : lista) {
             if (usuario.getId() == id && usuario instanceof Estudiante) {
+                return (Estudiante) usuario;
+            }
+        }
+        return null;
+    }
+
+    private Estudiante estudiantePorCorreo(List<Usuario> lista, String correo) {
+        if (correo == null) return null;
+        for (Usuario usuario : lista) {
+            if (usuario instanceof Estudiante && usuario.getCorreo().equalsIgnoreCase(correo.trim())) {
                 return (Estudiante) usuario;
             }
         }

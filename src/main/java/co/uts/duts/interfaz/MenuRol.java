@@ -3,11 +3,13 @@ package co.uts.duts.interfaz;
 import co.uts.duts.datos.texto.EstudianteArchivoRepository;
 import co.uts.duts.duts.ServicioDuts;
 import co.uts.duts.duts.Transferencia;
+import co.uts.duts.duts.Movimiento;
 import co.uts.duts.usuarios.Estudiante;
 import co.uts.duts.usuarios.Usuario;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -62,6 +64,8 @@ abstract class MenuRol extends JFrame {
             mostrarSaldo();
         } else if ("Promedios".equals(opcion)) {
             mostrarPromedios();
+        } else if ("Historial de transacciones".equals(opcion)) {
+            mostrarHistorialTransacciones();
         } else if ("Novedades".equals(opcion) || "Novedades y eventos".equals(opcion)) {
             setVisible(false);
             if ("ADMIN".equals(usuario.getRol())) {
@@ -137,6 +141,19 @@ abstract class MenuRol extends JFrame {
     }
 
     private void enviarDuts() {
+        try {
+            Estudiante saldoActual = servicioDuts.consultarEstudiante(usuario.getId());
+            if (saldoActual != null && saldoActual.getCuenta().estaBajoMinimo()) {
+                JOptionPane.showMessageDialog(this,
+                        "Alerta: tu saldo actual es " + saldoActual.consultarSaldo() + " DUTS y está por debajo "
+                                + "del mínimo de " + saldoActual.getCuenta().getSaldoMinimoAlerta() + " DUTS.",
+                        "Alerta de saldo mínimo", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (IOException ex) {
+            mostrarError(ex);
+            return;
+        }
+
         JTextField destino = new JTextField();
         JTextField monto = new JTextField();
         JPanel panel = new JPanel(new GridLayout(0, 2, 8, 8));
@@ -151,12 +168,93 @@ abstract class MenuRol extends JFrame {
         }
         try {
             int cantidad = Integer.parseInt(monto.getText().trim());
-            Transferencia transferencia = servicioDuts.transferir(usuario.getId(), destino.getText(), cantidad);
-            JOptionPane.showMessageDialog(this, "Enviaste " + transferencia.getMonto()
-                    + " DUTS correctamente.", "Transferencia realizada", JOptionPane.INFORMATION_MESSAGE);
+            String correoDestino = destino.getText().trim();
+            Transferencia vistaPrevia = servicioDuts.previsualizarTransferencia(
+                    usuario.getId(), correoDestino, cantidad);
+            Estudiante origen = servicioDuts.consultarEstudiante(usuario.getId());
+            Usuario destinatario = servicioDuts.consultarUsuario(vistaPrevia.getIdDestino());
+            int saldoActual = origen.consultarSaldo();
+            int saldoPosterior = saldoActual - cantidad;
+            int saldoMinimo = origen.getCuenta().getSaldoMinimoAlerta();
+
+            StringBuilder alerta = new StringBuilder();
+            if (saldoPosterior < saldoMinimo) {
+                alerta.append("Después del envío tendrás ").append(saldoPosterior)
+                        .append(" DUTS, por debajo del mínimo de ").append(saldoMinimo).append(" DUTS.\n");
+            }
+            if (alerta.length() > 0) {
+                JOptionPane.showMessageDialog(this, alerta.toString(),
+                        "Alerta de saldo mínimo", JOptionPane.WARNING_MESSAGE);
+            }
+
+            String confirmacion = "Confirma la transferencia:\n\n"
+                    + "Destinatario: " + destinatario.getNombre() + " (" + destinatario.getCorreo() + ")\n"
+                    + "Cantidad: " + cantidad + " DUTS\n"
+                    + "Saldo actual: " + saldoActual + " DUTS\n"
+                    + "Saldo después del envío: " + saldoPosterior + " DUTS\n\n"
+                    + "¿Deseas continuar?";
+            if (JOptionPane.showConfirmDialog(this, confirmacion, "Confirmar transferencia",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            Transferencia transferencia = servicioDuts.transferir(usuario.getId(), correoDestino, cantidad);
+            String resultado = "Enviaste " + transferencia.getMonto() + " DUTS correctamente."
+                    + (saldoPosterior < saldoMinimo ? "\nAlerta: tu saldo quedó por debajo del mínimo." : "");
+            JOptionPane.showMessageDialog(this, resultado, "Transferencia realizada", JOptionPane.INFORMATION_MESSAGE);
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "La cantidad debe ser un número entero.",
                     "Dato inválido", JOptionPane.WARNING_MESSAGE);
+        } catch (Exception ex) {
+            mostrarError(ex);
+        }
+    }
+
+    private void mostrarHistorialTransacciones() {
+        JTextField meses = new JTextField("3");
+        JTextField correoDestino = new JTextField();
+        JPanel filtros = new JPanel(new GridLayout(0, 2, 8, 8));
+        filtros.add(new JLabel("Mostrar últimos meses:"));
+        filtros.add(meses);
+        filtros.add(new JLabel("Correo al que enviaste (opcional):"));
+        filtros.add(correoDestino);
+        if (JOptionPane.showConfirmDialog(this, filtros, "Filtrar transacciones",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) return;
+
+        try {
+            int cantidadMeses = Integer.parseInt(meses.getText().trim());
+            List<Movimiento> movimientos = servicioDuts.filtrarMovimientos(
+                    usuario.getId(), cantidadMeses, correoDestino.getText());
+            if (movimientos.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No hay movimientos con esos filtros.",
+                        "Historial", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            StringBuilder texto = new StringBuilder("Historial de transacciones\n\n");
+            for (Movimiento movimiento : movimientos) {
+                texto.append(movimiento.getFecha().format(formato)).append(" | ")
+                        .append(movimiento.getTipo()).append(" | ")
+                        .append(movimiento.getMonto()).append(" DUTS | ")
+                        .append(movimiento.getEstado()).append("\n")
+                        .append(movimiento.getDescripcion() == null ? "" : movimiento.getDescripcion())
+                        .append("\n");
+                Long otraCuenta = movimiento.getIdOrigen() != null
+                        && movimiento.getIdOrigen() == usuario.getId()
+                        ? movimiento.getIdDestino() : movimiento.getIdOrigen();
+                if (otraCuenta != null) {
+                    Usuario relacionado = servicioDuts.consultarUsuario(otraCuenta);
+                    if (relacionado != null) texto.append("Cuenta relacionada: ").append(relacionado.getCorreo()).append("\n");
+                }
+                texto.append("\n");
+            }
+            JTextArea area = new JTextArea(texto.toString(), 20, 60);
+            area.setEditable(false);
+            JOptionPane.showMessageDialog(this, new JScrollPane(area), "Historial de transacciones",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Ingresa un número válido de meses.",
+                    "Filtro inválido", JOptionPane.WARNING_MESSAGE);
         } catch (Exception ex) {
             mostrarError(ex);
         }

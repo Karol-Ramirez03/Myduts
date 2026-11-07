@@ -6,6 +6,7 @@ package co.uts.duts.interfaz;
 
 
 import co.uts.duts.datos.texto.EstudianteArchivoRepository;
+import co.uts.duts.usuarios.Estudiante;
 import co.uts.duts.usuarios.Usuario;
 
 public class InicioSesion extends javax.swing.JFrame {
@@ -104,6 +105,15 @@ public class InicioSesion extends javax.swing.JFrame {
             if (usuario == null) {
                 javax.swing.JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.", "No se pudo ingresar", javax.swing.JOptionPane.ERROR_MESSAGE);
                 return;
+            }
+            if (usuario instanceof Estudiante) {
+                Estudiante estudiante = (Estudiante) usuario;
+                if (estudiante.getCuenta().estaBajoMinimo()) {
+                    javax.swing.JOptionPane.showMessageDialog(this,
+                            "Alerta: tu saldo actual es " + estudiante.consultarSaldo() + " DUTS y está por debajo "
+                                    + "del mínimo de " + estudiante.getCuenta().getSaldoMinimoAlerta() + " DUTS.",
+                            "Alerta de saldo mínimo", javax.swing.JOptionPane.WARNING_MESSAGE);
+                }
             }
             javax.swing.JFrame menu = "ADMIN".equals(usuario.getRol())
                     ? new MenuAdministrador(usuario)

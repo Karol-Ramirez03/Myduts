@@ -22,7 +22,7 @@ import java.util.List;
 public class Cuenta {
     public static final int META_GRADUACION = 70000;
     public static final int PLAZO_SEMESTRES = 2;
-    public static final int SALDO_MINIMO_POR_DEFECTO = 5000;
+    public static final int SALDO_MINIMO_POR_DEFECTO = 1000;
 
     private long idPropietario;
     private int saldoDuts;
