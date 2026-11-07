@@ -114,6 +114,13 @@ public class InicioSesion extends javax.swing.JFrame {
                                     + "del mínimo de " + estudiante.getCuenta().getSaldoMinimoAlerta() + " DUTS.",
                             "Alerta de saldo mínimo", javax.swing.JOptionPane.WARNING_MESSAGE);
                 }
+                try {
+                    new co.uts.duts.logros.ServicioLogros().actualizarYListar(estudiante.getId());
+                } catch (java.io.IOException ex) {
+                    javax.swing.JOptionPane.showMessageDialog(this,
+                            "No se pudieron actualizar tus logros: " + ex.getMessage(),
+                            "Logros", javax.swing.JOptionPane.WARNING_MESSAGE);
+                }
             }
             javax.swing.JFrame menu = "ADMIN".equals(usuario.getRol())
                     ? new MenuAdministrador(usuario)

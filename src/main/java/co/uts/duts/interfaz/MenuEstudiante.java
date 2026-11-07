@@ -8,7 +8,7 @@ public class MenuEstudiante extends MenuRol {
         super(estudiante, "Estudiante", new String[] {
             "Gestión DUTS", "Mi perfil", "Novedades", "Saldo", "Promedios",
             "Historial de transacciones", "Extracto de transacciones", "Ranking DUTS",
-            "Calculadora de notas", "Preguntas frecuentes"
+            "Calculadora de notas", "Preguntas frecuentes", "Calificación de eventos", "Mis logros"
         });
     }
 }

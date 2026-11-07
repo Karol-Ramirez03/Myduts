@@ -2,6 +2,7 @@ package co.uts.duts.duts;
 
 import co.uts.duts.datos.texto.EstudianteArchivoRepository;
 import co.uts.duts.datos.texto.MovimientoArchivoRepository;
+import co.uts.duts.logros.ServicioLogros;
 import co.uts.duts.usuarios.Estudiante;
 import co.uts.duts.usuarios.Usuario;
 import co.uts.duts.validacion.SaldoInsuficienteException;
@@ -14,16 +15,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 /** Operaciones de DUTS guardadas en los archivos de texto de la aplicación. */
 public class ServicioDuts {
     private final EstudianteArchivoRepository usuarios = new EstudianteArchivoRepository();
     private final MovimientoArchivoRepository movimientos = new MovimientoArchivoRepository();
-    private static final DateTimeFormatter FORMATO_FECHA_EXTRACTO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final DateTimeFormatter FORMATO_FECHA_EXTRACTO = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     /** Valida una transferencia y la devuelve sin aplicarla ni guardarla. */
     public synchronized Transferencia previsualizarTransferencia(long idOrigen, String correoDestino, int monto)
@@ -92,6 +95,7 @@ public class ServicioDuts {
             usuarios.guardarUsuarios(lista);
             throw ex;
         }
+        revisarLogros(idEstudiante);
         return ajuste;
     }
 
@@ -131,6 +135,7 @@ public class ServicioDuts {
             usuarios.guardarUsuarios(lista);
             throw ex;
         }
+        if (diferencia > 0) revisarLogros(idEstudiante);
     }
 
     public Estudiante consultarEstudiante(long id) throws IOException {
@@ -184,46 +189,115 @@ public class ServicioDuts {
         return estudiantes;
     }
 
-    /** Genera y guarda el extracto de los movimientos del último mes en un archivo TXT. */
-    public Path generarExtractoMensual(long idEstudiante) throws IOException, ValidacionException {
+    /** Genera el extracto TXT del mes seleccionado y calcula el saldo al cierre de ese mes. */
+    public Path generarExtracto(long idEstudiante, YearMonth periodo) throws IOException, ValidacionException {
         Usuario estudiante = usuarios.consultar(idEstudiante);
         if (!(estudiante instanceof Estudiante)) {
             throw new IOException("No se encontró la cuenta de estudiante para generar el extracto.");
         }
-        List<Movimiento> lista = filtrarMovimientos(idEstudiante, 1, "");
-        LocalDateTime ahora = LocalDateTime.now();
-        LocalDateTime desde = ahora.minusMonths(1);
-        StringBuilder contenido = new StringBuilder("MyDUTS - Extracto de transacciones\n")
-                .append("Estudiante: ").append(estudiante.getNombre()).append("\n")
-                .append("Correo: ").append(estudiante.getCorreo()).append("\n")
-                .append("Periodo: ").append(desde.format(FORMATO_FECHA_EXTRACTO)).append(" a ")
-                .append(ahora.format(FORMATO_FECHA_EXTRACTO)).append("\n\n");
-        if (lista.isEmpty()) {
-            contenido.append("No se registraron movimientos en este periodo.\n");
-        } else {
-            for (Movimiento movimiento : lista) {
-                contenido.append(movimiento.getFecha().format(FORMATO_FECHA_EXTRACTO)).append(" | ")
-                        .append(movimiento.getTipo()).append(" | ").append(movimiento.getMonto())
-                        .append(" DUTS | ").append(movimiento.getEstado()).append("\n")
-                        .append(movimiento.getDescripcion() == null ? "" : movimiento.getDescripcion())
-                        .append("\n");
-                Long relacionadoId = movimiento.getIdOrigen() != null
-                        && movimiento.getIdOrigen() == idEstudiante
-                        ? movimiento.getIdDestino() : movimiento.getIdOrigen();
-                if (relacionadoId != null) {
-                    Usuario relacionado = usuarios.consultar(relacionadoId);
-                    if (relacionado != null) contenido.append("Cuenta relacionada: ")
-                            .append(relacionado.getCorreo()).append("\n");
-                }
-                contenido.append("\n");
+        if (periodo == null || periodo.isAfter(YearMonth.now())) {
+            throw new ValidacionException("periodo", "Selecciona un mes y año válidos, no futuros.");
+        }
+
+        LocalDateTime inicio = periodo.atDay(1).atStartOfDay();
+        LocalDateTime fin = periodo.plusMonths(1).atDay(1).atStartOfDay();
+        List<Movimiento> todos = movimientos.listarPorEstudiante(idEstudiante);
+        List<Movimiento> delPeriodo = new ArrayList<>();
+        long variacionPosterior = 0;
+        for (Movimiento movimiento : todos) {
+            if (!Movimiento.ESTADO_CONFIRMADO.equals(movimiento.getEstado())) continue;
+            if (!movimiento.getFecha().isBefore(inicio) && movimiento.getFecha().isBefore(fin)) {
+                delPeriodo.add(movimiento);
+            } else if (!movimiento.getFecha().isBefore(fin)) {
+                variacionPosterior += variacionSaldo(movimiento, idEstudiante);
             }
         }
+        delPeriodo.sort(Comparator.comparing(Movimiento::getFecha));
+
+        long saldoFinal = ((Estudiante) estudiante).getCuenta().getSaldoDuts() - variacionPosterior;
+        StringBuilder contenido = new StringBuilder("REPORTE DE EXTRACTOS\n\n")
+                .append("Usuario: ").append(estudiante.getNombre()).append("\n\n")
+                .append("Cuenta: ").append(estudiante.getCodigo()).append("\n\n")
+                .append("Periodo: ").append(String.format("%02d/%04d", periodo.getMonthValue(), periodo.getYear()))
+                .append("\n\nFecha: ").append(LocalDate.now().format(FORMATO_FECHA_EXTRACTO))
+                .append("\n\n\n")
+                .append(String.format("%-14s %-54s %16s%n", "Fecha", "Descripcion", "Valor"));
+        if (delPeriodo.isEmpty()) {
+            contenido.append("No se registraron transacciones en este periodo.\n");
+        } else {
+            for (Movimiento movimiento : delPeriodo) {
+                long variacion = variacionSaldo(movimiento, idEstudiante);
+                contenido.append(String.format("%-14s %-54s %16s%n",
+                        movimiento.getFecha().format(FORMATO_FECHA_EXTRACTO),
+                        descripcionExtracto(movimiento, idEstudiante).replace('\n', ' ').replace('\r', ' '),
+                        formatoValor(variacion)));
+            }
+        }
+        contenido.append("\nSALDO FINAL: ").append(formatoSaldo(saldoFinal)).append(" DUTS\n");
+
         Path carpeta = Paths.get("datos-texto", "extractos");
         Files.createDirectories(carpeta);
-        String mes = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+        String mes = periodo.format(DateTimeFormatter.ofPattern("yyyy-MM"));
         Path archivo = carpeta.resolve("extracto_estudiante_" + idEstudiante + "_" + mes + ".txt");
         Files.writeString(archivo, contenido.toString(), StandardCharsets.UTF_8);
         return archivo;
+    }
+
+    private long variacionSaldo(Movimiento movimiento, long idEstudiante) {
+        if ("TRANSFERENCIA".equals(movimiento.getTipo())) {
+            if (movimiento.getIdOrigen() != null && movimiento.getIdOrigen() == idEstudiante) {
+                return -movementAmount(movimiento);
+            }
+            if (movimiento.getIdDestino() != null && movimiento.getIdDestino() == idEstudiante) {
+                return movementAmount(movimiento);
+            }
+        } else if (movimiento.getIdDestino() != null && movimiento.getIdDestino() == idEstudiante) {
+            if ("AJUSTE".equals(movimiento.getTipo()) && movimiento.getDescripcion() != null
+                    && movimiento.getDescripcion().startsWith("[DEBITO]")) {
+                return -movementAmount(movimiento);
+            }
+            return movementAmount(movimiento);
+        }
+        return 0;
+    }
+
+    private long movementAmount(Movimiento movimiento) {
+        return movimiento.getMonto();
+    }
+
+    private String descripcionExtracto(Movimiento movimiento, long idEstudiante) throws IOException {
+        if ("TRANSFERENCIA".equals(movimiento.getTipo())) {
+            Long idRelacionado = movimiento.getIdOrigen() != null && movimiento.getIdOrigen() == idEstudiante
+                    ? movimiento.getIdDestino() : movimiento.getIdOrigen();
+            Usuario relacionado = idRelacionado == null ? null : usuarios.consultar(idRelacionado);
+            if (movimiento.getIdOrigen() != null && movimiento.getIdOrigen() == idEstudiante) {
+                return "Transferencia a " + (relacionado == null ? "cuenta " + idRelacionado : relacionado.getCorreo());
+            }
+            return "Transferencia recibida de " + (relacionado == null ? "cuenta " + idRelacionado : relacionado.getCorreo());
+        }
+        if ("AJUSTE".equals(movimiento.getTipo()) && movimiento.getDescripcion() != null
+                && movimiento.getDescripcion().startsWith("[DEBITO]")) {
+            return "Débito administrativo";
+        }
+        return movimiento.getDescripcion() == null ? movimiento.getTipo() : movimiento.getDescripcion();
+    }
+
+    private String formatoValor(long valor) {
+        String cifra = String.format(Locale.US, "%,d", Math.abs(valor)).replace(',', '.');
+        return (valor < 0 ? "-" : "+") + cifra;
+    }
+
+    private String formatoSaldo(long saldo) {
+        String cifra = String.format(Locale.US, "%,d", Math.abs(saldo)).replace(',', '.');
+        return (saldo < 0 ? "-" : "") + cifra;
+    }
+
+    private void revisarLogros(long idEstudiante) {
+        try {
+            new ServicioLogros().actualizarYListar(idEstudiante);
+        } catch (IOException ignored) {
+            // El inicio de sesión y la pantalla Mis logros vuelven a revisar los hitos.
+        }
     }
 
     public void guardarCuenta(Estudiante estudiante) throws IOException {

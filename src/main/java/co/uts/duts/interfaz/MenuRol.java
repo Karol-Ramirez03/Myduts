@@ -77,6 +77,10 @@ abstract class MenuRol extends JFrame {
             abrirCalculadoraNotas();
         } else if ("Preguntas frecuentes".equals(opcion)) {
             PreguntasFrecuentesVentana.abrir(this, usuario);
+        } else if ("Calificación de eventos".equals(opcion)) {
+            CalificacionEventosVentana.abrir(this, usuario);
+        } else if ("Mis logros".equals(opcion)) {
+            LogrosVentana.abrir(this, usuario);
         } else if ("Novedades".equals(opcion) || "Novedades y eventos".equals(opcion)) {
             setVisible(false);
             if ("ADMIN".equals(usuario.getRol())) {
@@ -272,17 +276,38 @@ abstract class MenuRol extends JFrame {
     }
 
     private void generarExtractoMensual() {
+        JTextField mes = new JTextField(Integer.toString(java.time.LocalDate.now().getMonthValue()));
+        JTextField anio = new JTextField(Integer.toString(java.time.LocalDate.now().getYear()));
+        JPanel periodo = new JPanel(new GridLayout(0, 2, 8, 8));
+        periodo.add(new JLabel("Mes (1 a 12):"));
+        periodo.add(mes);
+        periodo.add(new JLabel("Año:"));
+        periodo.add(anio);
+        if (JOptionPane.showConfirmDialog(this, periodo, "Seleccionar periodo del extracto",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) return;
         try {
-            Path archivo = servicioDuts.generarExtractoMensual(usuario.getId());
+            int mesSeleccionado = Integer.parseInt(mes.getText().trim());
+            int anioSeleccionado = Integer.parseInt(anio.getText().trim());
+            if (mesSeleccionado < 1 || mesSeleccionado > 12 || anioSeleccionado < 1) {
+                throw new IllegalArgumentException("Ingresa un mes entre 1 y 12 y un año válido.");
+            }
+            java.time.YearMonth mesAnio = java.time.YearMonth.of(anioSeleccionado, mesSeleccionado);
+            Path archivo = servicioDuts.generarExtracto(usuario.getId(), mesAnio);
             String contenido = Files.readString(archivo, StandardCharsets.UTF_8);
-            JTextArea area = new JTextArea(contenido, 22, 64);
+            JTextArea area = new JTextArea(contenido, 22, 90);
             area.setEditable(false);
             area.setCaretPosition(0);
+            area.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 13));
             JPanel panel = new JPanel(new BorderLayout(8, 8));
             panel.add(new JLabel("Archivo generado: " + archivo.toString()), BorderLayout.NORTH);
             panel.add(new JScrollPane(area), BorderLayout.CENTER);
-            JOptionPane.showMessageDialog(this, panel, "Extracto del último mes",
+            JOptionPane.showMessageDialog(this, panel, "Extracto de " + mesAnio,
                     JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Mes y año deben ser números enteros.",
+                    "Periodo inválido", JOptionPane.WARNING_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Periodo inválido", JOptionPane.WARNING_MESSAGE);
         } catch (Exception ex) {
             mostrarError(ex);
         }
@@ -290,13 +315,13 @@ abstract class MenuRol extends JFrame {
 
     private void mostrarRankingDuts() {
         try {
-            List<Estudiante> ranking = servicioDuts.rankingDuts(10);
+            List<Estudiante> ranking = servicioDuts.rankingDuts(5);
             if (ranking.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Todavía no hay estudiantes para mostrar.",
                         "Ranking DUTS", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
-            StringBuilder texto = new StringBuilder("Ranking de DUTS acumulados\nMeta de referencia: 70.000 DUTS en 2 semestres\n\n");
+            StringBuilder texto = new StringBuilder("Top 5 de DUTS acumulados\nMeta de referencia: 70.000 DUTS en 2 semestres\n\n");
             int puesto = 1;
             for (Estudiante estudiante : ranking) {
                 int acumulados = estudiante.getCuenta().getDutsAcumulados();
