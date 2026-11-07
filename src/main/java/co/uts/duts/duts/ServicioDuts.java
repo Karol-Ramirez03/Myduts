@@ -15,15 +15,14 @@ public class ServicioDuts {
     private final EstudianteArchivoRepository usuarios = new EstudianteArchivoRepository();
     private final MovimientoArchivoRepository movimientos = new MovimientoArchivoRepository();
 
-    public synchronized Transferencia transferir(long idOrigen, String destinoTexto, int monto, String pin)
+    public synchronized Transferencia transferir(long idOrigen, String correoDestino, int monto)
             throws IOException, ValidacionException, SaldoInsuficienteException {
         List<Usuario> lista = usuarios.listar();
         Estudiante origen = estudiantePorId(lista, idOrigen);
         Estudiante destino = null;
         for (Usuario usuario : lista) {
             if (usuario instanceof Estudiante
-                    && (usuario.getCorreo().equalsIgnoreCase(destinoTexto.trim())
-                    || usuario.getCodigo().equalsIgnoreCase(destinoTexto.trim()))) {
+                    && usuario.getCorreo().equalsIgnoreCase(correoDestino.trim())) {
                 destino = (Estudiante) usuario;
                 break;
             }
@@ -35,7 +34,7 @@ public class ServicioDuts {
             throw new ValidacionException("destino", "No se encontró un estudiante activo con ese correo o código.");
         }
 
-        Transferencia transferencia = origen.enviarDuts(destino, monto, pin);
+        Transferencia transferencia = origen.enviarDuts(destino, monto);
         int saldoOrigenAntes = origen.getCuenta().getSaldoDuts();
         int saldoDestinoAntes = destino.getCuenta().getSaldoDuts();
         transferencia.aplicar(origen.getCuenta(), destino.getCuenta());

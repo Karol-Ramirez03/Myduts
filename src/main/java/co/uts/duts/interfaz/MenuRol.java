@@ -5,8 +5,6 @@ import co.uts.duts.duts.ServicioDuts;
 import co.uts.duts.duts.Transferencia;
 import co.uts.duts.usuarios.Estudiante;
 import co.uts.duts.usuarios.Usuario;
-import co.uts.duts.validacion.ValidacionException;
-import co.uts.duts.validacion.Validador;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.io.IOException;
@@ -73,8 +71,6 @@ abstract class MenuRol extends JFrame {
     private void mostrarPerfil() {
         JTextField nombre = new JTextField(usuario.getNombre(), 24);
         JTextField correo = new JTextField(usuario.getCorreo(), 24);
-        JTextField pin = new JTextField();
-        boolean esEstudiante = usuario instanceof Estudiante;
         JPanel panel = new JPanel(new GridLayout(0, 2, 8, 8));
         panel.add(new JLabel("ID:"));
         panel.add(new JLabel(String.valueOf(usuario.getId())));
@@ -86,30 +82,18 @@ abstract class MenuRol extends JFrame {
         panel.add(nombre);
         panel.add(new JLabel("Correo:"));
         panel.add(correo);
-        if (esEstudiante) {
-            panel.add(new JLabel("Nuevo PIN de transferencia (4 dígitos):"));
-            panel.add(pin);
-        }
 
         int opcion = JOptionPane.showConfirmDialog(this, panel, "Mi perfil",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (opcion == JOptionPane.OK_OPTION) {
             try {
-                if (esEstudiante && !pin.getText().isBlank()) {
-                    Validador.pinValido(pin.getText().trim());
-                }
                 EstudianteArchivoRepository repo = new EstudianteArchivoRepository();
                 if (!repo.actualizarPerfil(usuario.getId(), nombre.getText(), correo.getText())) {
                     throw new IllegalArgumentException("Revisa el nombre y el correo ingresados.");
                 }
                 usuario.actualizarPerfil(nombre.getText(), correo.getText());
-                if (esEstudiante && !pin.getText().isBlank()) {
-                    Estudiante estudiante = (Estudiante) usuario;
-                    estudiante.getCuenta().establecerPin(pin.getText().trim());
-                    servicioDuts.guardarCuenta(estudiante);
-                }
                 JOptionPane.showMessageDialog(this, "Perfil actualizado.");
-            } catch (IOException | IllegalArgumentException | ValidacionException ex) {
+            } catch (IOException | IllegalArgumentException ex) {
                 mostrarError(ex);
             }
         }
@@ -148,14 +132,11 @@ abstract class MenuRol extends JFrame {
     private void enviarDuts() {
         JTextField destino = new JTextField();
         JTextField monto = new JTextField();
-        JTextField pin = new JTextField();
         JPanel panel = new JPanel(new GridLayout(0, 2, 8, 8));
-        panel.add(new JLabel("Correo o código destino:"));
+        panel.add(new JLabel("Correo destino:"));
         panel.add(destino);
         panel.add(new JLabel("Cantidad de DUTS:"));
         panel.add(monto);
-        panel.add(new JLabel("PIN de 4 dígitos:"));
-        panel.add(pin);
 
         if (JOptionPane.showConfirmDialog(this, panel, "Enviar DUTS",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) {
@@ -163,8 +144,7 @@ abstract class MenuRol extends JFrame {
         }
         try {
             int cantidad = Integer.parseInt(monto.getText().trim());
-            Transferencia transferencia = servicioDuts.transferir(usuario.getId(), destino.getText(),
-                    cantidad, pin.getText().trim());
+            Transferencia transferencia = servicioDuts.transferir(usuario.getId(), destino.getText(), cantidad);
             JOptionPane.showMessageDialog(this, "Enviaste " + transferencia.getMonto()
                     + " DUTS correctamente.", "Transferencia realizada", JOptionPane.INFORMATION_MESSAGE);
         } catch (NumberFormatException ex) {

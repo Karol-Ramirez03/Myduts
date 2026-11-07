@@ -1,6 +1,8 @@
 package co.uts.duts.datos.texto;
 
 import co.uts.duts.duts.Cuenta;
+import co.uts.duts.duts.AjusteAdmin;
+import co.uts.duts.duts.Movimiento;
 import co.uts.duts.usuarios.Administrador;
 import co.uts.duts.usuarios.Estudiante;
 import co.uts.duts.usuarios.Usuario;
@@ -32,6 +34,19 @@ public class EstudianteArchivoRepository {
         Estudiante estudiante = new Estudiante(nombre, codigo, correo, contrasena);
         estudiante.setId(siguienteId());
         agregarLinea(aLinea(estudiante));
+        try {
+            long idAdministrador = listar().stream()
+                    .filter(usuario -> "ADMIN".equals(usuario.getRol()))
+                    .mapToLong(Usuario::getId)
+                    .findFirst().orElse(0);
+            AjusteAdmin saldoInicial = new AjusteAdmin(idAdministrador, estudiante.getId(), 2000,
+                    "Saldo inicial de bienvenida");
+            saldoInicial.setEstado(Movimiento.ESTADO_CONFIRMADO);
+            new MovimientoArchivoRepository().guardar(saldoInicial);
+        } catch (IOException ex) {
+            eliminar(estudiante.getId());
+            throw ex;
+        }
     }
 
     /** Crea el administrador inicial si todavía no está guardado en el archivo. */

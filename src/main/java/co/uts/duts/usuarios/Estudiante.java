@@ -33,7 +33,8 @@ public class Estudiante extends Usuario {
 
     /** Crea un estudiante nuevo. */
     public Estudiante(String nombre, String codigo, String correo, String contrasena) {
-        this(0, nombre, codigo, correo, contrasena, true, LocalDateTime.now(), null, new Cuenta());
+        this(0, nombre, codigo, correo, contrasena, true, LocalDateTime.now(), null,
+                new Cuenta(2000, 2000, Cuenta.SALDO_MINIMO_POR_DEFECTO, null));
     }
 
     @Override
@@ -70,13 +71,12 @@ public class Estudiante extends Usuario {
     }
 
     /**
-     * Prepara una transferencia hacia otro estudiante validando datos, PIN y saldo.
+     * Prepara una transferencia hacia otro estudiante validando datos y saldo.
      * No modifica saldos ni guarda nada: eso lo hace {@link ServicioDuts#transferir}.
      */
-    public Transferencia enviarDuts(Estudiante destino, int monto, String pin)
+    public Transferencia enviarDuts(Estudiante destino, int monto)
             throws ValidacionException, SaldoInsuficienteException {
         Validador.montoValido(monto);
-        Validador.pinValido(pin);
         if (destino == null) {
             throw new ValidacionException("destino", "El estudiante destino no existe.");
         }
@@ -84,9 +84,6 @@ public class Estudiante extends Usuario {
             throw new ValidacionException("destino", "No puedes enviarte DUTS a ti mismo.");
         }
         Transferencia t = new Transferencia(getId(), destino.getId(), monto, "Transferencia a " + destino.getNombre());
-        if (!t.confirmarPin(pin, cuenta)) {
-            throw new ValidacionException("pin", "PIN incorrecto.");
-        }
         if (!cuenta.tieneSaldoSuficiente(monto)) {
             throw new SaldoInsuficienteException(cuenta.getSaldoDuts(), monto);
         }
