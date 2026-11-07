@@ -43,9 +43,11 @@ public class PreguntasFrecuentesVentana extends JDialog {
         titulo.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 22));
         titulo.setForeground(new Color(52, 83, 31));
         titulo.setBorder(BorderFactory.createEmptyBorder(12, 12, 4, 12));
+        
         lista.setLayout(new BoxLayout(lista, BoxLayout.Y_AXIS));
         lista.setBorder(BorderFactory.createEmptyBorder(12, 14, 12, 14));
         lista.setBackground(new Color(245, 247, 242));
+        
         add(titulo, BorderLayout.NORTH);
         add(new JScrollPane(lista), BorderLayout.CENTER);
 
@@ -64,6 +66,7 @@ public class PreguntasFrecuentesVentana extends JDialog {
         acciones.add(cerrar);
         acciones.setBorder(BorderFactory.createEmptyBorder(0, 8, 10, 8));
         add(acciones, BorderLayout.SOUTH);
+        
         cargarPreguntas();
     }
 
@@ -71,28 +74,51 @@ public class PreguntasFrecuentesVentana extends JDialog {
         lista.removeAll();
         try {
             List<PreguntaFrecuente> preguntas = repositorio.listar();
+            
+
+            if (preguntas.isEmpty()) {
+                try {
+                    repositorio.agregar(
+                        "¿Qué son los DUTS?", 
+                        "Son los incentivos y créditos institucionales otorgados por las UTS a través de la participación en eventos académicos, culturales y empresariales."
+                    );
+                    repositorio.agregar(
+                        "¿Cómo me inscribo a una novedad?", 
+                        "Dirígete al apartado de 'Novedades' en tu menú principal, busca el evento de tu interés y haz clic en el botón 'Inscribirse'."
+                    );
+                    repositorio.agregar(
+                        "¿Cómo puedo consultar mi extracto mensual?", 
+                        "En la sección correspondiente de tu cuenta puedes seleccionar el mes y año deseado para generar un reporte detallado en formato de texto."
+                    );
+                    preguntas = repositorio.listar();
+                } catch (Exception ex) {
+
+                }
+            }
+
             if (preguntas.isEmpty()) {
                 JLabel vacio = new JLabel("Aún no se han agregado preguntas.");
                 vacio.setAlignmentX(CENTER_ALIGNMENT);
                 lista.add(Box.createVerticalStrut(18));
                 lista.add(vacio);
-            }
-            for (PreguntaFrecuente pregunta : preguntas) {
-                JButton boton = new JButton("<html><div style='width:480px;padding:6px'><b>"
-                        + escaparHtml(pregunta.getPregunta()) + "</b><br><span style='color:#52713e'>"
-                        + "Presiona para ver la respuesta</span></div></html>");
-                boton.setHorizontalAlignment(JButton.LEFT);
-                boton.setBackground(Color.WHITE);
-                boton.setFocusPainted(false);
-                boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                boton.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(new Color(205, 216, 198), 1, true),
-                        BorderFactory.createEmptyBorder(8, 12, 8, 12)));
-                boton.setAlignmentX(LEFT_ALIGNMENT);
-                boton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
-                boton.addActionListener(event -> mostrarRespuesta(pregunta));
-                lista.add(boton);
-                lista.add(Box.createVerticalStrut(10));
+            } else {
+                for (PreguntaFrecuente pregunta : preguntas) {
+                    JButton boton = new JButton("<html><div style='width:480px;padding:6px'><b>"
+                            + escaparHtml(pregunta.getPregunta()) + "</b><br><span style='color:#52713e'>"
+                            + "Presiona para ver la respuesta</span></div></html>");
+                    boton.setHorizontalAlignment(JButton.LEFT);
+                    boton.setBackground(Color.WHITE);
+                    boton.setFocusPainted(false);
+                    boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                    boton.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(new Color(205, 216, 198), 1, true),
+                            BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+                    boton.setAlignmentX(LEFT_ALIGNMENT);
+                    boton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+                    boton.addActionListener(event -> mostrarRespuesta(pregunta));
+                    lista.add(boton);
+                    lista.add(Box.createVerticalStrut(10));
+                }
             }
         } catch (IOException ex) {
             mostrarError(ex);
