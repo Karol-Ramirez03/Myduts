@@ -62,6 +62,14 @@ public class CalificacionEventoArchivoRepository {
         return calificaciones;
     }
 
+    public List<CalificacionEvento> listarPorEvento(long idNovedad) throws IOException {
+        List<CalificacionEvento> resultado = new ArrayList<>();
+        for (CalificacionEvento calificacion : listar()) {
+            if (calificacion.getIdNovedad() == idNovedad) resultado.add(calificacion);
+        }
+        return resultado;
+    }
+
     private void asegurarArchivo() throws IOException {
         Files.createDirectories(ARCHIVO.getParent());
         if (Files.notExists(ARCHIVO)) Files.createFile(ARCHIVO);

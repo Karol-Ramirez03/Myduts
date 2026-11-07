@@ -49,6 +49,28 @@ public class EstudianteArchivoRepository {
         }
     }
 
+    public synchronized Administrador registrarAdministrador(long idAdministradorCreador, String nombre,
+            String codigo, String correo, String contrasena) throws IOException {
+        Usuario creador = consultar(idAdministradorCreador);
+        if (!(creador instanceof Administrador) || !creador.isActivo()) {
+            throw new IllegalArgumentException("Se requiere una cuenta de administrador activa.");
+        }
+        if (nombre == null || nombre.isBlank() || codigo == null || codigo.isBlank()
+                || correo == null || correo.isBlank() || contrasena == null || contrasena.length() < 6) {
+            throw new IllegalArgumentException("Completa todos los campos. La contraseña debe tener al menos 6 caracteres.");
+        }
+        if (!correo.contains("@")) {
+            throw new IllegalArgumentException("Ingresa un correo válido.");
+        }
+        if (existeCorreoOCodigo(correo, codigo)) {
+            throw new IllegalArgumentException("El correo o código ya están registrados.");
+        }
+        Administrador nuevo = new Administrador(siguienteId(), nombre.trim(), codigo.trim(),
+                correo.trim(), contrasena, true, LocalDateTime.now());
+        agregarLinea(aLinea(nuevo));
+        return nuevo;
+    }
+
     /** Crea el administrador inicial si todavía no está guardado en el archivo. */
     public synchronized void asegurarAdministradorInicial() throws IOException {
         for (Usuario usuario : listar()) {

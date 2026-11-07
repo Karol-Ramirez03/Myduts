@@ -1,6 +1,9 @@
 package co.uts.duts.interfaz;
 
+import co.uts.duts.datos.texto.EstudianteArchivoRepository;
+import co.uts.duts.novedades.CalificacionEvento;
 import co.uts.duts.novedades.Novedad;
+import co.uts.duts.novedades.ServicioCalificaciones;
 import co.uts.duts.novedades.ServicioNovedades;
 import co.uts.duts.usuarios.Usuario;
 import java.awt.Color;
@@ -30,6 +33,8 @@ public class AdminNovedades extends javax.swing.JFrame {
     private final JFrame menuAnterior;
     private final Usuario administrador;
     private final ServicioNovedades servicio = new ServicioNovedades();
+    private final ServicioCalificaciones servicioCalificaciones = new ServicioCalificaciones();
+    private final EstudianteArchivoRepository usuarios = new EstudianteArchivoRepository();
     private final JPanel panelTarjetas = new JPanel();
 
     public AdminNovedades(JFrame menuAnterior, Usuario administrador) {
@@ -66,11 +71,12 @@ public class AdminNovedades extends javax.swing.JFrame {
 
         etiquetaTitulo.setFont(new java.awt.Font("SansSerif", 1, 24));
         etiquetaTitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        etiquetaTitulo.setForeground(new java.awt.Color(52, 83, 31));
         etiquetaTitulo.setText("Novedades y eventos");
 
-        botonCrear.setBackground(new java.awt.Color(52, 83, 31));
         botonCrear.setFont(new java.awt.Font("SansSerif", 1, 14));
-        botonCrear.setForeground(new java.awt.Color(255, 255, 255));
+        botonCrear.setBackground(java.awt.Color.WHITE);
+        botonCrear.setForeground(new java.awt.Color(52, 83, 31));
         botonCrear.setText("+ Crear novedad");
         botonCrear.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -79,6 +85,8 @@ public class AdminNovedades extends javax.swing.JFrame {
         });
 
         botonVolver.setText("Volver");
+        botonVolver.setBackground(java.awt.Color.WHITE);
+        botonVolver.setForeground(new java.awt.Color(52, 83, 31));
         botonVolver.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonVolverActionPerformed(evt);
@@ -196,13 +204,31 @@ public class AdminNovedades extends javax.swing.JFrame {
                     + "\nFin: " + novedad.getFechaFin().format(FORMATO_FECHA)
                     + "\nInscritos: " + cupo + "\n\nCondiciones para obtener DUTS:\n"
                     + novedad.getCondiciones();
+            List<CalificacionEvento> calificaciones = servicioCalificaciones.listarCalificaciones(
+                    administrador.getId(), novedad.getId());
+            detalle += "\n\nCalificaciones del evento:\n";
+            if (calificaciones.isEmpty()) {
+                detalle += "Aún no hay calificaciones.";
+            } else {
+                double suma = 0;
+                for (CalificacionEvento calificacion : calificaciones) suma += calificacion.getEstrellas();
+                detalle += String.format("Promedio: %.1f/5 (%d calificaciones)\n\n",
+                        suma / calificaciones.size(), calificaciones.size());
+                for (CalificacionEvento calificacion : calificaciones) {
+                    Usuario autor = usuarios.consultar(calificacion.getIdEstudiante());
+                    detalle += (autor == null ? "Estudiante " + calificacion.getIdEstudiante() : autor.getNombre())
+                            + " — " + calificacion.getEstrellas() + "/5 estrellas\n"
+                            + (calificacion.getComentario().isBlank() ? "Sin comentario" : calificacion.getComentario())
+                            + "\n\n";
+                }
+            }
             JTextArea area = new JTextArea(detalle, 17, 48);
             area.setEditable(false);
             area.setLineWrap(true);
             area.setWrapStyleWord(true);
             JOptionPane.showMessageDialog(this, new JScrollPane(area), "Detalle de la novedad",
                     JOptionPane.INFORMATION_MESSAGE);
-        } catch (IOException ex) {
+        } catch (IOException | IllegalArgumentException ex) {
             mostrarError(ex);
         }
     }

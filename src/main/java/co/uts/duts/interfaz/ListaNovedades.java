@@ -65,9 +65,12 @@ public class ListaNovedades extends javax.swing.JFrame {
 
         etiquetaTitulo.setFont(new java.awt.Font("SansSerif", 1, 24));
         etiquetaTitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        etiquetaTitulo.setForeground(new Color(52, 83, 31));
         etiquetaTitulo.setText("Novedades disponibles");
 
         botonVolver.setText("Volver");
+        botonVolver.setBackground(Color.WHITE);
+        botonVolver.setForeground(new Color(52, 83, 31));
         botonVolver.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonVolverActionPerformed(evt);

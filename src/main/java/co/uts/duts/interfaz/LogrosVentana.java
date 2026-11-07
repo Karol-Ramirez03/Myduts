@@ -4,6 +4,7 @@ import co.uts.duts.logros.Logro;
 import co.uts.duts.logros.ServicioLogros;
 import co.uts.duts.usuarios.Usuario;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -45,7 +46,10 @@ public class LogrosVentana extends JDialog {
             area.setEditable(false);
             area.setLineWrap(true);
             area.setWrapStyleWord(true);
-            add(new JLabel("Logros por DUTS acumulados", JLabel.CENTER), BorderLayout.NORTH);
+            JLabel titulo = new JLabel("Logros por DUTS acumulados", JLabel.CENTER);
+            titulo.setForeground(new Color(52, 83, 31));
+            titulo.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 20));
+            add(titulo, BorderLayout.NORTH);
             add(new JScrollPane(area), BorderLayout.CENTER);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(padre, ex.getMessage(), "No se pudieron cargar los logros",

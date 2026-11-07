@@ -36,11 +36,12 @@ public class MenuNovedades extends javax.swing.JFrame {
 
         etiquetaTitulo.setFont(new java.awt.Font("SansSerif", 1, 25));
         etiquetaTitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        etiquetaTitulo.setForeground(new java.awt.Color(52, 83, 31));
         etiquetaTitulo.setText("Novedades y eventos");
 
-        botonVerNovedades.setBackground(new java.awt.Color(52, 83, 31));
+        botonVerNovedades.setBackground(java.awt.Color.WHITE);
         botonVerNovedades.setFont(new java.awt.Font("SansSerif", 1, 16));
-        botonVerNovedades.setForeground(new java.awt.Color(255, 255, 255));
+        botonVerNovedades.setForeground(new java.awt.Color(52, 83, 31));
         botonVerNovedades.setText("Ver novedades");
         botonVerNovedades.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -48,9 +49,9 @@ public class MenuNovedades extends javax.swing.JFrame {
             }
         });
 
-        botonMisEventos.setBackground(new java.awt.Color(52, 83, 31));
+        botonMisEventos.setBackground(java.awt.Color.WHITE);
         botonMisEventos.setFont(new java.awt.Font("SansSerif", 1, 16));
-        botonMisEventos.setForeground(new java.awt.Color(255, 255, 255));
+        botonMisEventos.setForeground(new java.awt.Color(52, 83, 31));
         botonMisEventos.setText("Mis eventos");
         botonMisEventos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -59,6 +60,8 @@ public class MenuNovedades extends javax.swing.JFrame {
         });
 
         botonCerrar.setText("Cerrar");
+        botonCerrar.setBackground(java.awt.Color.WHITE);
+        botonCerrar.setForeground(new java.awt.Color(52, 83, 31));
         botonCerrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonCerrarActionPerformed(evt);

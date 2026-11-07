@@ -50,6 +50,15 @@ public class ServicioCalificaciones {
                 comentario == null ? "" : comentario.trim(), LocalDateTime.now()));
     }
 
+    public List<CalificacionEvento> listarCalificaciones(long idAdministrador, long idNovedad)
+            throws IOException {
+        Usuario administrador = usuarios.consultar(idAdministrador);
+        if (administrador == null || !"ADMIN".equals(administrador.getRol()) || !administrador.isActivo()) {
+            throw new IllegalArgumentException("Se requiere una cuenta de administrador activa.");
+        }
+        return calificaciones.listarPorEvento(idNovedad);
+    }
+
     private void verificarEstudiante(long idEstudiante) throws IOException {
         Usuario usuario = usuarios.consultar(idEstudiante);
         if (!(usuario instanceof Estudiante) || !usuario.isActivo()) {

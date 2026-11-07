@@ -7,6 +7,7 @@ import co.uts.duts.duts.Movimiento;
 import co.uts.duts.usuarios.Estudiante;
 import co.uts.duts.usuarios.Usuario;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -40,15 +41,20 @@ abstract class MenuRol extends JFrame {
 
         JLabel encabezado = new JLabel("Hola, " + usuario.getNombre(), JLabel.CENTER);
         encabezado.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 22));
+        encabezado.setForeground(new Color(52, 83, 31));
 
         JPanel botones = new JPanel(new GridLayout(opciones.length + 1, 1, 10, 10));
         botones.setBorder(BorderFactory.createEmptyBorder(22, 70, 22, 70));
         for (String opcion : opciones) {
             JButton boton = new JButton(opcion);
+            boton.setBackground(Color.WHITE);
+            boton.setForeground(new Color(52, 83, 31));
             boton.addActionListener(event -> abrirOpcion(opcion));
             botones.add(boton);
         }
         JButton cerrarSesion = new JButton("Cerrar sesión");
+        cerrarSesion.setBackground(Color.WHITE);
+        cerrarSesion.setForeground(new Color(52, 83, 31));
         cerrarSesion.addActionListener(event -> cerrarSesion());
         botones.add(cerrarSesion);
 
@@ -81,6 +87,8 @@ abstract class MenuRol extends JFrame {
             CalificacionEventosVentana.abrir(this, usuario);
         } else if ("Mis logros".equals(opcion)) {
             LogrosVentana.abrir(this, usuario);
+        } else if ("Usuarios".equals(opcion) && "ADMIN".equals(usuario.getRol())) {
+            UsuariosAdministracionVentana.abrir(this, usuario);
         } else if ("Novedades".equals(opcion) || "Novedades y eventos".equals(opcion)) {
             setVisible(false);
             if ("ADMIN".equals(usuario.getRol())) {

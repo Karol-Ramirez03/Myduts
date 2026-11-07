@@ -41,6 +41,7 @@ public class PreguntasFrecuentesVentana extends JDialog {
 
         JLabel titulo = new JLabel("Preguntas frecuentes", JLabel.CENTER);
         titulo.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 22));
+        titulo.setForeground(new Color(52, 83, 31));
         titulo.setBorder(BorderFactory.createEmptyBorder(12, 12, 4, 12));
         lista.setLayout(new BoxLayout(lista, BoxLayout.Y_AXIS));
         lista.setBorder(BorderFactory.createEmptyBorder(12, 14, 12, 14));
@@ -51,10 +52,14 @@ public class PreguntasFrecuentesVentana extends JDialog {
         JPanel acciones = new JPanel();
         if ("ADMIN".equals(usuario.getRol())) {
             JButton agregar = new JButton("Agregar pregunta");
+            agregar.setBackground(Color.WHITE);
+            agregar.setForeground(new Color(52, 83, 31));
             agregar.addActionListener(event -> agregarPregunta());
             acciones.add(agregar);
         }
         JButton cerrar = new JButton("Cerrar");
+        cerrar.setBackground(Color.WHITE);
+        cerrar.setForeground(new Color(52, 83, 31));
         cerrar.addActionListener(event -> dispose());
         acciones.add(cerrar);
         acciones.setBorder(BorderFactory.createEmptyBorder(0, 8, 10, 8));

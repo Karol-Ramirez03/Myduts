@@ -41,6 +41,7 @@ public class CalificacionEventosVentana extends JDialog {
         setLayout(new BorderLayout(8, 8));
         JLabel titulo = new JLabel("Eventos que puedes calificar", JLabel.CENTER);
         titulo.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 21));
+        titulo.setForeground(new Color(52, 83, 31));
         titulo.setBorder(BorderFactory.createEmptyBorder(12, 12, 4, 12));
         panelEventos.setLayout(new BoxLayout(panelEventos, BoxLayout.Y_AXIS));
         panelEventos.setBackground(new Color(245, 247, 242));
@@ -48,6 +49,8 @@ public class CalificacionEventosVentana extends JDialog {
         add(titulo, BorderLayout.NORTH);
         add(new JScrollPane(panelEventos), BorderLayout.CENTER);
         JButton cerrar = new JButton("Cerrar");
+        cerrar.setBackground(Color.WHITE);
+        cerrar.setForeground(new Color(52, 83, 31));
         cerrar.addActionListener(event -> dispose());
         JPanel pie = new JPanel();
         pie.add(cerrar);
