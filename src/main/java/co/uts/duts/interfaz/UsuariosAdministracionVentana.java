@@ -56,8 +56,8 @@ public class UsuariosAdministracionVentana extends JDialog {
 
     private JButton crearBoton(String texto) {
         JButton boton = new JButton(texto);
-        boton.setBackground(java.awt.Color.WHITE);
-        boton.setForeground(new java.awt.Color(52, 83, 31));
+        boton.setBackground(new java.awt.Color(52, 83, 31));
+        boton.setForeground(java.awt.Color.WHITE);
         return boton;
     }
 

@@ -75,8 +75,8 @@ public class AdminNovedades extends javax.swing.JFrame {
         etiquetaTitulo.setText("Novedades y eventos");
 
         botonCrear.setFont(new java.awt.Font("SansSerif", 1, 14));
-        botonCrear.setBackground(java.awt.Color.WHITE);
-        botonCrear.setForeground(new java.awt.Color(52, 83, 31));
+        botonCrear.setBackground(new java.awt.Color(52, 83, 31));
+        botonCrear.setForeground(java.awt.Color.WHITE);
         botonCrear.setText("+ Crear novedad");
         botonCrear.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -85,8 +85,8 @@ public class AdminNovedades extends javax.swing.JFrame {
         });
 
         botonVolver.setText("Volver");
-        botonVolver.setBackground(java.awt.Color.WHITE);
-        botonVolver.setForeground(new java.awt.Color(52, 83, 31));
+        botonVolver.setBackground(new java.awt.Color(52, 83, 31));
+        botonVolver.setForeground(java.awt.Color.WHITE);
         botonVolver.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonVolverActionPerformed(evt);

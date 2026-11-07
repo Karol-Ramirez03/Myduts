@@ -41,7 +41,7 @@ public class MenuNovedades extends javax.swing.JFrame {
 
         botonVerNovedades.setBackground(java.awt.Color.WHITE);
         botonVerNovedades.setFont(new java.awt.Font("SansSerif", 1, 16));
-        botonVerNovedades.setForeground(new java.awt.Color(52, 83, 31));
+        botonVerNovedades.setForeground(java.awt.Color.BLACK);
         botonVerNovedades.setText("Ver novedades");
         botonVerNovedades.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -51,7 +51,7 @@ public class MenuNovedades extends javax.swing.JFrame {
 
         botonMisEventos.setBackground(java.awt.Color.WHITE);
         botonMisEventos.setFont(new java.awt.Font("SansSerif", 1, 16));
-        botonMisEventos.setForeground(new java.awt.Color(52, 83, 31));
+        botonMisEventos.setForeground(java.awt.Color.BLACK);
         botonMisEventos.setText("Mis eventos");
         botonMisEventos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -61,7 +61,7 @@ public class MenuNovedades extends javax.swing.JFrame {
 
         botonCerrar.setText("Cerrar");
         botonCerrar.setBackground(java.awt.Color.WHITE);
-        botonCerrar.setForeground(new java.awt.Color(52, 83, 31));
+        botonCerrar.setForeground(java.awt.Color.BLACK);
         botonCerrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonCerrarActionPerformed(evt);

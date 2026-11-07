@@ -70,7 +70,7 @@ public class ListaNovedades extends javax.swing.JFrame {
 
         botonVolver.setText("Volver");
         botonVolver.setBackground(Color.WHITE);
-        botonVolver.setForeground(new Color(52, 83, 31));
+        botonVolver.setForeground(Color.BLACK);
         botonVolver.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonVolverActionPerformed(evt);

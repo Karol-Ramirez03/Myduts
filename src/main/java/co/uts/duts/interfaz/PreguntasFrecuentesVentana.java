@@ -52,14 +52,14 @@ public class PreguntasFrecuentesVentana extends JDialog {
         JPanel acciones = new JPanel();
         if ("ADMIN".equals(usuario.getRol())) {
             JButton agregar = new JButton("Agregar pregunta");
-            agregar.setBackground(Color.WHITE);
-            agregar.setForeground(new Color(52, 83, 31));
+            agregar.setBackground(new Color(52, 83, 31));
+            agregar.setForeground(Color.WHITE);
             agregar.addActionListener(event -> agregarPregunta());
             acciones.add(agregar);
         }
         JButton cerrar = new JButton("Cerrar");
-        cerrar.setBackground(Color.WHITE);
-        cerrar.setForeground(new Color(52, 83, 31));
+        cerrar.setBackground(new Color(52, 83, 31));
+        cerrar.setForeground(Color.WHITE);
         cerrar.addActionListener(event -> dispose());
         acciones.add(cerrar);
         acciones.setBorder(BorderFactory.createEmptyBorder(0, 8, 10, 8));

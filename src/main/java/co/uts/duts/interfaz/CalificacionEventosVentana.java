@@ -49,8 +49,8 @@ public class CalificacionEventosVentana extends JDialog {
         add(titulo, BorderLayout.NORTH);
         add(new JScrollPane(panelEventos), BorderLayout.CENTER);
         JButton cerrar = new JButton("Cerrar");
-        cerrar.setBackground(Color.WHITE);
-        cerrar.setForeground(new Color(52, 83, 31));
+        cerrar.setBackground(new Color(52, 83, 31));
+        cerrar.setForeground(Color.WHITE);
         cerrar.addActionListener(event -> dispose());
         JPanel pie = new JPanel();
         pie.add(cerrar);

@@ -48,13 +48,13 @@ abstract class MenuRol extends JFrame {
         for (String opcion : opciones) {
             JButton boton = new JButton(opcion);
             boton.setBackground(Color.WHITE);
-            boton.setForeground(new Color(52, 83, 31));
+            boton.setForeground(Color.BLACK);
             boton.addActionListener(event -> abrirOpcion(opcion));
             botones.add(boton);
         }
         JButton cerrarSesion = new JButton("Cerrar sesión");
         cerrarSesion.setBackground(Color.WHITE);
-        cerrarSesion.setForeground(new Color(52, 83, 31));
+        cerrarSesion.setForeground(Color.BLACK);
         cerrarSesion.addActionListener(event -> cerrarSesion());
         botones.add(cerrarSesion);
 
