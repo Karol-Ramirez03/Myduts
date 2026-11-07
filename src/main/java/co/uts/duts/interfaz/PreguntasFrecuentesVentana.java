@@ -83,7 +83,7 @@ public class PreguntasFrecuentesVentana extends JDialog {
                         "Son los incentivos y créditos institucionales otorgados por las UTS a través de la participación en eventos académicos, culturales y empresariales."
                     );
                     repositorio.agregar(
-                        "¿Cómo me inscribo a una novedad?", 
+                        "¿Cómo me inscribo a un evento?", 
                         "Dirígete al apartado de 'Novedades' en tu menú principal, busca el evento de tu interés y haz clic en el botón 'Inscribirse'."
                     );
                     repositorio.agregar(
@@ -95,7 +95,6 @@ public class PreguntasFrecuentesVentana extends JDialog {
 
                 }
             }
-
             if (preguntas.isEmpty()) {
                 JLabel vacio = new JLabel("Aún no se han agregado preguntas.");
                 vacio.setAlignmentX(CENTER_ALIGNMENT);
