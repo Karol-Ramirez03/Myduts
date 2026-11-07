@@ -26,7 +26,6 @@ import javax.swing.JComboBox;
 public class CalificacionEventosVentana extends JDialog {
     private final Usuario estudiante;
     private final ServicioCalificaciones servicio = new ServicioCalificaciones();
-    private final JPanel panelEventos = new JPanel();
 
     public static void abrir(JFrame padre, Usuario estudiante) {
         new CalificacionEventosVentana(padre, estudiante).setVisible(true);
@@ -35,27 +34,46 @@ public class CalificacionEventosVentana extends JDialog {
     private CalificacionEventosVentana(JFrame padre, Usuario estudiante) {
         super(padre, "Calificación de eventos", true);
         this.estudiante = estudiante;
+        initComponents();
+        panelEventos.setLayout(new BoxLayout(panelEventos, BoxLayout.Y_AXIS));
+        setLocationRelativeTo(padre);
+        cargarEventos();
+    }
+
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        etiquetaTitulo = new JLabel("Eventos que puedes calificar", JLabel.CENTER);
+        panelEventos = new JPanel();
+        scrollEventos = new JScrollPane();
+        scrollEventos.setViewportView(panelEventos);
+        botonCerrar = new JButton("Cerrar");
+        panelAcciones = new JPanel();
+
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(640, 480);
-        setLocationRelativeTo(padre);
         setLayout(new BorderLayout(8, 8));
-        JLabel titulo = new JLabel("Eventos que puedes calificar", JLabel.CENTER);
-        titulo.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 21));
-        titulo.setForeground(new Color(52, 83, 31));
-        titulo.setBorder(BorderFactory.createEmptyBorder(12, 12, 4, 12));
-        panelEventos.setLayout(new BoxLayout(panelEventos, BoxLayout.Y_AXIS));
+        etiquetaTitulo.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 21));
+        etiquetaTitulo.setForeground(new Color(52, 83, 31));
+        etiquetaTitulo.setBorder(BorderFactory.createEmptyBorder(12, 12, 4, 12));
         panelEventos.setBackground(new Color(245, 247, 242));
         panelEventos.setBorder(BorderFactory.createEmptyBorder(12, 14, 12, 14));
-        add(titulo, BorderLayout.NORTH);
-        add(new JScrollPane(panelEventos), BorderLayout.CENTER);
-        JButton cerrar = new JButton("Cerrar");
-        cerrar.setBackground(new Color(52, 83, 31));
-        cerrar.setForeground(Color.WHITE);
-        cerrar.addActionListener(event -> dispose());
-        JPanel pie = new JPanel();
-        pie.add(cerrar);
-        add(pie, BorderLayout.SOUTH);
-        cargarEventos();
+        botonCerrar.setBackground(new Color(52, 83, 31));
+        botonCerrar.setForeground(Color.WHITE);
+        botonCerrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonCerrarActionPerformed(evt);
+            }
+        });
+        panelAcciones.add(botonCerrar);
+        add(etiquetaTitulo, BorderLayout.NORTH);
+        add(scrollEventos, BorderLayout.CENTER);
+        add(panelAcciones, BorderLayout.SOUTH);
+    }
+    // </editor-fold>//GEN-END:initComponents
+
+    private void botonCerrarActionPerformed(java.awt.event.ActionEvent evt) {
+        dispose();
     }
 
     private void cargarEventos() {
@@ -126,4 +144,12 @@ public class CalificacionEventosVentana extends JDialog {
         JOptionPane.showMessageDialog(this, ex.getMessage(), "No se pudo completar la acción",
                 JOptionPane.ERROR_MESSAGE);
     }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton botonCerrar;
+    private javax.swing.JLabel etiquetaTitulo;
+    private javax.swing.JPanel panelEventos;
+    private javax.swing.JScrollPane scrollEventos;
+    private javax.swing.JPanel panelAcciones;
+    // End of variables declaration//GEN-END:variables
 }

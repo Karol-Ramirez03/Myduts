@@ -25,7 +25,6 @@ import javax.swing.JTextArea;
 public class PreguntasFrecuentesVentana extends JDialog {
     private final Usuario usuario;
     private final PreguntaFrecuenteArchivoRepository repositorio = new PreguntaFrecuenteArchivoRepository();
-    private final JPanel lista = new JPanel();
 
     public static void abrir(JFrame padre, Usuario usuario) {
         new PreguntasFrecuentesVentana(padre, usuario).setVisible(true);
@@ -34,40 +33,61 @@ public class PreguntasFrecuentesVentana extends JDialog {
     private PreguntasFrecuentesVentana(JFrame padre, Usuario usuario) {
         super(padre, "Preguntas frecuentes", true);
         this.usuario = usuario;
+        initComponents();
+        lista.setLayout(new BoxLayout(lista, BoxLayout.Y_AXIS));
+        setLocationRelativeTo(padre);
+        cargarPreguntas();
+    }
+
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        etiquetaTitulo = new JLabel("Preguntas frecuentes", JLabel.CENTER);
+        lista = new JPanel();
+        scrollPreguntas = new JScrollPane();
+        scrollPreguntas.setViewportView(lista);
+        botonAgregar = new JButton("Agregar pregunta");
+        botonCerrar = new JButton("Cerrar");
+        panelAcciones = new JPanel();
+
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(620, 500);
-        setLocationRelativeTo(padre);
         setLayout(new BorderLayout(10, 10));
-
-        JLabel titulo = new JLabel("Preguntas frecuentes", JLabel.CENTER);
-        titulo.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 22));
-        titulo.setForeground(new Color(52, 83, 31));
-        titulo.setBorder(BorderFactory.createEmptyBorder(12, 12, 4, 12));
-        
-        lista.setLayout(new BoxLayout(lista, BoxLayout.Y_AXIS));
+        etiquetaTitulo.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 22));
+        etiquetaTitulo.setForeground(new Color(52, 83, 31));
+        etiquetaTitulo.setBorder(BorderFactory.createEmptyBorder(12, 12, 4, 12));
         lista.setBorder(BorderFactory.createEmptyBorder(12, 14, 12, 14));
         lista.setBackground(new Color(245, 247, 242));
-        
-        add(titulo, BorderLayout.NORTH);
-        add(new JScrollPane(lista), BorderLayout.CENTER);
+        botonAgregar.setBackground(new Color(52, 83, 31));
+        botonAgregar.setForeground(Color.WHITE);
+        botonAgregar.setVisible("ADMIN".equals(usuario.getRol()));
+        botonAgregar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonAgregarActionPerformed(evt);
+            }
+        });
+        botonCerrar.setBackground(new Color(52, 83, 31));
+        botonCerrar.setForeground(Color.WHITE);
+        botonCerrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonCerrarActionPerformed(evt);
+            }
+        });
+        panelAcciones.add(botonAgregar);
+        panelAcciones.add(botonCerrar);
+        panelAcciones.setBorder(BorderFactory.createEmptyBorder(0, 8, 10, 8));
+        add(etiquetaTitulo, BorderLayout.NORTH);
+        add(scrollPreguntas, BorderLayout.CENTER);
+        add(panelAcciones, BorderLayout.SOUTH);
+    }
+    // </editor-fold>//GEN-END:initComponents
 
-        JPanel acciones = new JPanel();
-        if ("ADMIN".equals(usuario.getRol())) {
-            JButton agregar = new JButton("Agregar pregunta");
-            agregar.setBackground(new Color(52, 83, 31));
-            agregar.setForeground(Color.WHITE);
-            agregar.addActionListener(event -> agregarPregunta());
-            acciones.add(agregar);
-        }
-        JButton cerrar = new JButton("Cerrar");
-        cerrar.setBackground(new Color(52, 83, 31));
-        cerrar.setForeground(Color.WHITE);
-        cerrar.addActionListener(event -> dispose());
-        acciones.add(cerrar);
-        acciones.setBorder(BorderFactory.createEmptyBorder(0, 8, 10, 8));
-        add(acciones, BorderLayout.SOUTH);
-        
-        cargarPreguntas();
+    private void botonAgregarActionPerformed(java.awt.event.ActionEvent evt) {
+        agregarPregunta();
+    }
+
+    private void botonCerrarActionPerformed(java.awt.event.ActionEvent evt) {
+        dispose();
     }
 
     private void cargarPreguntas() {
@@ -167,4 +187,13 @@ public class PreguntasFrecuentesVentana extends JDialog {
     private void mostrarError(Exception ex) {
         JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton botonAgregar;
+    private javax.swing.JButton botonCerrar;
+    private javax.swing.JLabel etiquetaTitulo;
+    private javax.swing.JPanel lista;
+    private javax.swing.JScrollPane scrollPreguntas;
+    private javax.swing.JPanel panelAcciones;
+    // End of variables declaration//GEN-END:variables
 }

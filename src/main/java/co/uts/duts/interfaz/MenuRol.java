@@ -35,32 +35,40 @@ abstract class MenuRol extends JFrame {
     MenuRol(Usuario usuario, String titulo, String[] opciones) {
         this.usuario = usuario;
         setTitle("MyDUTS - " + titulo);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(560, Math.min(780, Math.max(430, 130 + (opciones.length + 1) * 50)));
         setLocationRelativeTo(null);
-
-        JLabel encabezado = new JLabel("Hola, " + usuario.getNombre(), JLabel.CENTER);
-        encabezado.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 22));
-        encabezado.setForeground(new Color(52, 83, 31));
-
-        JPanel botones = new JPanel(new GridLayout(opciones.length + 1, 1, 10, 10));
-        botones.setBorder(BorderFactory.createEmptyBorder(22, 70, 22, 70));
+        initComponents();
+        etiquetaEncabezado.setText("Hola, " + usuario.getNombre());
+        panelBotones.setLayout(new GridLayout(opciones.length + 1, 1, 10, 10));
         for (String opcion : opciones) {
             JButton boton = new JButton(opcion);
             boton.setBackground(Color.WHITE);
             boton.setForeground(Color.BLACK);
             boton.addActionListener(event -> abrirOpcion(opcion));
-            botones.add(boton);
+            panelBotones.add(boton);
         }
-        JButton cerrarSesion = new JButton("Cerrar sesión");
-        cerrarSesion.setBackground(Color.WHITE);
-        cerrarSesion.setForeground(Color.BLACK);
-        cerrarSesion.addActionListener(event -> cerrarSesion());
-        botones.add(cerrarSesion);
-
-        add(encabezado, BorderLayout.NORTH);
-        add(botones, BorderLayout.CENTER);
+        botonCerrarSesion.addActionListener(event -> cerrarSesion());
+        panelBotones.add(botonCerrarSesion);
     }
+
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">
+    private void initComponents() {
+        etiquetaEncabezado = new JLabel("", JLabel.CENTER);
+        panelBotones = new JPanel();
+        botonCerrarSesion = new JButton("Cerrar sesión");
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        etiquetaEncabezado.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 22));
+        etiquetaEncabezado.setForeground(new Color(52, 83, 31));
+        panelBotones.setBorder(BorderFactory.createEmptyBorder(22, 70, 22, 70));
+        botonCerrarSesion.setBackground(Color.WHITE);
+        botonCerrarSesion.setForeground(Color.BLACK);
+        add(etiquetaEncabezado, BorderLayout.NORTH);
+        add(panelBotones, BorderLayout.CENTER);
+    }
+    // </editor-fold>
 
     private void abrirOpcion(String opcion) {
         if ("Mi perfil".equals(opcion) || "Perfil".equals(opcion)) {
@@ -519,4 +527,10 @@ abstract class MenuRol extends JFrame {
         dispose();
         new PantallaInicial().setVisible(true);
     }
+
+    // Variables declaration - do not modify
+    private javax.swing.JButton botonCerrarSesion;
+    private javax.swing.JLabel etiquetaEncabezado;
+    private javax.swing.JPanel panelBotones;
+    // End of variables declaration
 }

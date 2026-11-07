@@ -2,7 +2,8 @@ package co.uts.duts.interfaz;
 
 import co.uts.duts.datos.texto.EstudianteArchivoRepository;
 import co.uts.duts.usuarios.Usuario;
-import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.io.IOException;
 import javax.swing.JButton;
@@ -19,7 +20,6 @@ import javax.swing.JPasswordField;
 public class UsuariosAdministracionVentana extends JDialog {
     private final Usuario administrador;
     private final EstudianteArchivoRepository repositorio = new EstudianteArchivoRepository();
-    private final JTextArea listado = new JTextArea(16, 54);
 
     public static void abrir(JFrame padre, Usuario administrador) {
         new UsuariosAdministracionVentana(padre, administrador).setVisible(true);
@@ -28,36 +28,61 @@ public class UsuariosAdministracionVentana extends JDialog {
     private UsuariosAdministracionVentana(JFrame padre, Usuario administrador) {
         super(padre, "Usuarios", true);
         this.administrador = administrador;
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(660, 450);
+        initComponents();
         setLocationRelativeTo(padre);
-        setLayout(new BorderLayout(8, 8));
-
-        JLabel titulo = new JLabel("Usuarios registrados", JLabel.CENTER);
-        titulo.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 22));
-        titulo.setForeground(new java.awt.Color(52, 83, 31));
-        titulo.setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 10, 4, 10));
-        listado.setEditable(false);
-        listado.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 12));
-        add(titulo, BorderLayout.NORTH);
-        add(new JScrollPane(listado), BorderLayout.CENTER);
-
-        JButton crear = crearBoton("Crear administrador");
-        crear.addActionListener(event -> mostrarFormulario());
-        JButton cerrar = crearBoton("Cerrar");
-        cerrar.addActionListener(event -> dispose());
-        JPanel acciones = new JPanel();
-        acciones.add(crear);
-        acciones.add(cerrar);
-        add(acciones, BorderLayout.SOUTH);
         cargarUsuarios();
     }
 
-    private JButton crearBoton(String texto) {
-        JButton boton = new JButton(texto);
-        boton.setBackground(new java.awt.Color(52, 83, 31));
-        boton.setForeground(java.awt.Color.WHITE);
-        return boton;
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        etiquetaTitulo = new JLabel("Usuarios registrados", JLabel.CENTER);
+        areaUsuarios = new JTextArea(16, 54);
+        scrollUsuarios = new JScrollPane();
+        scrollUsuarios.setViewportView(areaUsuarios);
+        botonCrearAdministrador = new JButton("Crear administrador");
+        botonCerrar = new JButton("Cerrar");
+        panelAcciones = new JPanel();
+
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setSize(660, 450);
+        setLayout(new java.awt.BorderLayout(8, 8));
+
+        etiquetaTitulo.setFont(new Font("SansSerif", Font.BOLD, 22));
+        etiquetaTitulo.setForeground(new Color(52, 83, 31));
+        etiquetaTitulo.setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 10, 4, 10));
+        areaUsuarios.setEditable(false);
+        areaUsuarios.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+        botonCrearAdministrador.setBackground(new Color(52, 83, 31));
+        botonCrearAdministrador.setForeground(Color.WHITE);
+        botonCrearAdministrador.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonCrearAdministradorActionPerformed(evt);
+            }
+        });
+        botonCerrar.setBackground(new Color(52, 83, 31));
+        botonCerrar.setForeground(Color.WHITE);
+        botonCerrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonCerrarActionPerformed(evt);
+            }
+        });
+
+        panelAcciones.add(botonCrearAdministrador);
+        panelAcciones.add(botonCerrar);
+        add(etiquetaTitulo, java.awt.BorderLayout.NORTH);
+        add(scrollUsuarios, java.awt.BorderLayout.CENTER);
+        add(panelAcciones, java.awt.BorderLayout.SOUTH);
+    }
+    // </editor-fold>//GEN-END:initComponents
+
+    private void botonCrearAdministradorActionPerformed(java.awt.event.ActionEvent evt) {
+        mostrarFormulario();
+    }
+
+    private void botonCerrarActionPerformed(java.awt.event.ActionEvent evt) {
+        dispose();
     }
 
     private void cargarUsuarios() {
@@ -68,8 +93,8 @@ public class UsuariosAdministracionVentana extends JDialog {
                 texto.append(String.format("%-5d %-12s %-26s %-18s%n", usuario.getId(), usuario.getRol(),
                         usuario.getNombre(), usuario.getCorreo()));
             }
-            listado.setText(texto.toString());
-            listado.setCaretPosition(0);
+            areaUsuarios.setText(texto.toString());
+            areaUsuarios.setCaretPosition(0);
         } catch (IOException ex) {
             mostrarError(ex);
         }
@@ -102,4 +127,13 @@ public class UsuariosAdministracionVentana extends JDialog {
         JOptionPane.showMessageDialog(this, ex.getMessage(), "No se pudo completar la operación",
                 JOptionPane.ERROR_MESSAGE);
     }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextArea areaUsuarios;
+    private javax.swing.JButton botonCerrar;
+    private javax.swing.JButton botonCrearAdministrador;
+    private javax.swing.JLabel etiquetaTitulo;
+    private javax.swing.JScrollPane scrollUsuarios;
+    private javax.swing.JPanel panelAcciones;
+    // End of variables declaration//GEN-END:variables
 }

@@ -15,7 +15,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-/** Muestra los hitos de DUTS que ya desbloqueó el estudiante. */
 public class LogrosVentana extends JDialog {
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -25,9 +24,33 @@ public class LogrosVentana extends JDialog {
 
     private LogrosVentana(JFrame padre, Usuario estudiante) {
         super(padre, "Mis logros", true);
+        initComponents();
+        setLocationRelativeTo(padre);
+        cargarLogros(padre, estudiante);
+    }
+
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        etiquetaTitulo = new JLabel("Logros por DUTS acumulados", JLabel.CENTER);
+        areaLogros = new JTextArea(16, 46);
+        scrollLogros = new JScrollPane();
+        scrollLogros.setViewportView(areaLogros);
+
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(560, 430);
-        setLocationRelativeTo(padre);
+        setLayout(new BorderLayout(8, 8));
+        etiquetaTitulo.setForeground(new Color(52, 83, 31));
+        etiquetaTitulo.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 20));
+        areaLogros.setEditable(false);
+        areaLogros.setLineWrap(true);
+        areaLogros.setWrapStyleWord(true);
+        add(etiquetaTitulo, BorderLayout.NORTH);
+        add(scrollLogros, BorderLayout.CENTER);
+    }
+    // </editor-fold>//GEN-END:initComponents
+
+    private void cargarLogros(JFrame padre, Usuario estudiante) {
         try {
             List<Logro> logros = new ServicioLogros().actualizarYListar(estudiante.getId());
             StringBuilder texto = new StringBuilder("Mis logros desbloqueados\n\n");
@@ -42,19 +65,18 @@ public class LogrosVentana extends JDialog {
                             .append("\n\n");
                 }
             }
-            JTextArea area = new JTextArea(texto.toString(), 16, 46);
-            area.setEditable(false);
-            area.setLineWrap(true);
-            area.setWrapStyleWord(true);
-            JLabel titulo = new JLabel("Logros por DUTS acumulados", JLabel.CENTER);
-            titulo.setForeground(new Color(52, 83, 31));
-            titulo.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 20));
-            add(titulo, BorderLayout.NORTH);
-            add(new JScrollPane(area), BorderLayout.CENTER);
+            areaLogros.setText(texto.toString());
+            areaLogros.setCaretPosition(0);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(padre, ex.getMessage(), "No se pudieron cargar los logros",
                     JOptionPane.ERROR_MESSAGE);
             dispose();
         }
     }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextArea areaLogros;
+    private javax.swing.JLabel etiquetaTitulo;
+    private javax.swing.JScrollPane scrollLogros;
+    // End of variables declaration//GEN-END:variables
 }
