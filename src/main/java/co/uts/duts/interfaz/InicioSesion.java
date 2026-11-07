@@ -5,9 +5,8 @@
 package co.uts.duts.interfaz;
 
 
-import co.uts.duts.datos.EstudianteDAO;
+import co.uts.duts.datos.texto.EstudianteArchivoRepository;
 import co.uts.duts.usuarios.Usuario;
-import java.awt.Color;
 
 public class InicioSesion extends javax.swing.JFrame {
 
@@ -101,15 +100,18 @@ public class InicioSesion extends javax.swing.JFrame {
 
     private void ingresar() {
         try {
-            Usuario usuario = new EstudianteDAO().autenticar(campoUsuario.getText().trim(), new String(campoContrasena.getPassword()));
+            Usuario usuario = new EstudianteArchivoRepository().autenticar(campoUsuario.getText().trim(), new String(campoContrasena.getPassword()));
             if (usuario == null) {
                 javax.swing.JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.", "No se pudo ingresar", javax.swing.JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            javax.swing.JOptionPane.showMessageDialog(this, "Bienvenido, " + usuario.getNombre() + ".");
+            javax.swing.JFrame menu = "ADMIN".equals(usuario.getRol())
+                    ? new MenuAdministrador(usuario)
+                    : new MenuEstudiante(usuario);
+            menu.setVisible(true);
             dispose();
-        } catch (java.sql.SQLException ex) {
-            javax.swing.JOptionPane.showMessageDialog(this, "No se pudo consultar SQLite: " + ex.getMessage(), "Error de base de datos", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } catch (java.io.IOException ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, "No se pudo consultar el archivo de estudiantes: " + ex.getMessage(), "Error de archivo", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }
 

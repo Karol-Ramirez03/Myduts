@@ -21,7 +21,7 @@ public class Estudiante extends Usuario {
     private String rutaFoto;
     private final Cuenta cuenta;
 
-    /** Estudiante leído de la base de datos. */
+    /** Estudiante leído de la persistencia de texto. */
     public Estudiante(long id, String nombre, String codigo, String correo, String contrasena,
                       boolean activo, LocalDateTime fechaRegistro, String rutaFoto, Cuenta cuenta) {
         super(id, nombre, codigo, correo, contrasena, activo);

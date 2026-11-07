@@ -5,8 +5,7 @@
 package co.uts.duts.interfaz;
 
 
-import co.uts.duts.datos.EstudianteDAO;
-import co.uts.duts.duts.Cuenta;
+import co.uts.duts.datos.texto.EstudianteArchivoRepository;
 import java.awt.Color;
 
 public class Registro extends javax.swing.JFrame {
@@ -113,16 +112,16 @@ public class Registro extends javax.swing.JFrame {
             return;
         }
         try {
-            EstudianteDAO dao = new EstudianteDAO();
-            if (dao.existeCorreoOCodigo(correo, codigo)) {
+            EstudianteArchivoRepository repositorio = new EstudianteArchivoRepository();
+            if (repositorio.existeCorreoOCodigo(correo, codigo)) {
                 javax.swing.JOptionPane.showMessageDialog(this, "El correo o código ya están registrados.", "Registro duplicado", javax.swing.JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            dao.registrar(nombre, codigo, correo, contrasena);
+            repositorio.registrar(nombre, codigo, correo, contrasena);
             javax.swing.JOptionPane.showMessageDialog(this, "Cuenta creada. Ya puedes iniciar sesión.");
             dispose();
-        } catch (java.sql.SQLException ex) {
-            javax.swing.JOptionPane.showMessageDialog(this, "No se pudo guardar en SQLite: " + ex.getMessage(), "Error de base de datos", javax.swing.JOptionPane.ERROR_MESSAGE);
+        } catch (java.io.IOException | IllegalArgumentException ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, "No se pudo guardar en el archivo: " + ex.getMessage(), "Error de archivo", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }
 

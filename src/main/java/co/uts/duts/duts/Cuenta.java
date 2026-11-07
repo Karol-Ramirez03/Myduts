@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Cuenta de DUTS de un estudiante (composición: no existe sin su {@link Estudiante}).
- * Sus datos se guardan como columnas de la tabla estudiante.
+ * Sus datos se guardan junto al estudiante en el archivo de texto.
  *
  * - saldoDuts: DUTS disponibles ahora (sube y baja).
  * - dutsAcumulados: DUTS ganados en total (premios y ajustes); nunca baja. Sirve para la meta de
@@ -102,7 +102,8 @@ public class Cuenta {
         long total = 0;
         LocalDateTime primero = null;
         for (Movimiento m : movimientos) {
-            if (m.esIngresoPara(idPropietario) && Movimiento.ESTADO_CONFIRMADO.equals(m.getEstado())) {
+            if (m.esIngresoPara(idPropietario) && Movimiento.ESTADO_CONFIRMADO.equals(m.getEstado())
+                    && (m.getDescripcion() == null || !m.getDescripcion().startsWith("[DEBITO]"))) {
                 total += m.getMonto();
                 if (primero == null || m.getFecha().isBefore(primero)) primero = m.getFecha();
             }
@@ -120,6 +121,16 @@ public class Cuenta {
     public String getPin() { return pin; }
     public long getIdPropietario() { return idPropietario; }
     public void setIdPropietario(long idPropietario) { this.idPropietario = idPropietario; }
+
+    public void establecerSaldoDuts(int saldoDuts) {
+        if (saldoDuts < 0) throw new IllegalArgumentException("El saldo no puede ser negativo.");
+        this.saldoDuts = saldoDuts;
+    }
+
+    public void establecerDutsAcumulados(int dutsAcumulados) {
+        if (dutsAcumulados < 0) throw new IllegalArgumentException("Los DUTS acumulados no pueden ser negativos.");
+        this.dutsAcumulados = dutsAcumulados;
+    }
 
     public void setSaldoMinimoAlerta(int saldoMinimoAlerta) {
         if (saldoMinimoAlerta < 0) throw new IllegalArgumentException("El saldo mínimo no puede ser negativo.");

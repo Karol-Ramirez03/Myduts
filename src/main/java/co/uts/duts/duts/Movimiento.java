@@ -35,7 +35,7 @@ public abstract class Movimiento {
     /** Modifica las cuentas según el tipo de movimiento. {@code origen} o {@code destino} pueden ser null. */
     public abstract void aplicar(Cuenta origen, Cuenta destino) throws SaldoInsuficienteException;
 
-    /** Valor guardado en la columna {@code tipo} de la tabla movimiento_duts. */
+    /** Tipo de movimiento guardado en el historial de texto. */
     public abstract String getTipo();
 
     public boolean validar() {

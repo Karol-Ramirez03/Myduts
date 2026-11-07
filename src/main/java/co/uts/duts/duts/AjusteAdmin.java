@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 /**
  * Ajuste manual de DUTS hecho por un administrador (suma DUTS a un estudiante). Cuenta como acumulado.
- * En la base de datos: el administrador va en id_estudiante_origen y el motivo en descripcion.
+ * En el historial de texto se guarda el identificador del administrador y el motivo.
  */
 public class AjusteAdmin extends Movimiento {
 

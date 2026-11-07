@@ -16,7 +16,7 @@ public class Transferencia extends Movimiento {
         super(0, idOrigen, idDestino, monto, descripcion, LocalDateTime.now(), ESTADO_PENDIENTE);
     }
 
-    /** Transferencia leída de la base de datos. */
+    /** Transferencia leída del historial de texto. */
     public Transferencia(long id, long idOrigen, long idDestino, int monto, String descripcion,
                          LocalDateTime fecha, String estado) {
         super(id, idOrigen, idDestino, monto, descripcion, fecha, estado);
