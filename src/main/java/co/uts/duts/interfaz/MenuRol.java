@@ -62,6 +62,13 @@ abstract class MenuRol extends JFrame {
             mostrarSaldo();
         } else if ("Promedios".equals(opcion)) {
             mostrarPromedios();
+        } else if ("Novedades".equals(opcion) || "Novedades y eventos".equals(opcion)) {
+            setVisible(false);
+            if ("ADMIN".equals(usuario.getRol())) {
+                new AdminNovedades(this, usuario).setVisible(true);
+            } else {
+                new MenuNovedades(this, usuario).setVisible(true);
+            }
         } else {
             JOptionPane.showMessageDialog(this, "La sección «" + opcion + "» se implementará después.",
                     "MyDUTS", JOptionPane.INFORMATION_MESSAGE);
