@@ -8,7 +8,14 @@ import co.uts.duts.validacion.SaldoInsuficienteException;
 import co.uts.duts.validacion.ValidacionException;
 import co.uts.duts.validacion.Validador;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -16,6 +23,7 @@ import java.util.List;
 public class ServicioDuts {
     private final EstudianteArchivoRepository usuarios = new EstudianteArchivoRepository();
     private final MovimientoArchivoRepository movimientos = new MovimientoArchivoRepository();
+    private static final DateTimeFormatter FORMATO_FECHA_EXTRACTO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     /** Valida una transferencia y la devuelve sin aplicarla ni guardarla. */
     public synchronized Transferencia previsualizarTransferencia(long idOrigen, String correoDestino, int monto)
@@ -164,6 +172,58 @@ public class ServicioDuts {
 
     public Usuario consultarUsuario(long id) throws IOException {
         return usuarios.consultar(id);
+    }
+
+    public List<Estudiante> rankingDuts(int limite) throws IOException {
+        List<Estudiante> estudiantes = usuarios.listarEstudiantes();
+        estudiantes.removeIf(estudiante -> !estudiante.isActivo());
+        estudiantes.sort(Comparator
+                .comparingInt((Estudiante estudiante) -> estudiante.getCuenta().getDutsAcumulados()).reversed()
+                .thenComparing(Estudiante::getNombre, String.CASE_INSENSITIVE_ORDER));
+        if (limite < estudiantes.size()) return new ArrayList<>(estudiantes.subList(0, Math.max(0, limite)));
+        return estudiantes;
+    }
+
+    /** Genera y guarda el extracto de los movimientos del último mes en un archivo TXT. */
+    public Path generarExtractoMensual(long idEstudiante) throws IOException, ValidacionException {
+        Usuario estudiante = usuarios.consultar(idEstudiante);
+        if (!(estudiante instanceof Estudiante)) {
+            throw new IOException("No se encontró la cuenta de estudiante para generar el extracto.");
+        }
+        List<Movimiento> lista = filtrarMovimientos(idEstudiante, 1, "");
+        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime desde = ahora.minusMonths(1);
+        StringBuilder contenido = new StringBuilder("MyDUTS - Extracto de transacciones\n")
+                .append("Estudiante: ").append(estudiante.getNombre()).append("\n")
+                .append("Correo: ").append(estudiante.getCorreo()).append("\n")
+                .append("Periodo: ").append(desde.format(FORMATO_FECHA_EXTRACTO)).append(" a ")
+                .append(ahora.format(FORMATO_FECHA_EXTRACTO)).append("\n\n");
+        if (lista.isEmpty()) {
+            contenido.append("No se registraron movimientos en este periodo.\n");
+        } else {
+            for (Movimiento movimiento : lista) {
+                contenido.append(movimiento.getFecha().format(FORMATO_FECHA_EXTRACTO)).append(" | ")
+                        .append(movimiento.getTipo()).append(" | ").append(movimiento.getMonto())
+                        .append(" DUTS | ").append(movimiento.getEstado()).append("\n")
+                        .append(movimiento.getDescripcion() == null ? "" : movimiento.getDescripcion())
+                        .append("\n");
+                Long relacionadoId = movimiento.getIdOrigen() != null
+                        && movimiento.getIdOrigen() == idEstudiante
+                        ? movimiento.getIdDestino() : movimiento.getIdOrigen();
+                if (relacionadoId != null) {
+                    Usuario relacionado = usuarios.consultar(relacionadoId);
+                    if (relacionado != null) contenido.append("Cuenta relacionada: ")
+                            .append(relacionado.getCorreo()).append("\n");
+                }
+                contenido.append("\n");
+            }
+        }
+        Path carpeta = Paths.get("datos-texto", "extractos");
+        Files.createDirectories(carpeta);
+        String mes = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+        Path archivo = carpeta.resolve("extracto_estudiante_" + idEstudiante + "_" + mes + ".txt");
+        Files.writeString(archivo, contenido.toString(), StandardCharsets.UTF_8);
+        return archivo;
     }
 
     public void guardarCuenta(Estudiante estudiante) throws IOException {

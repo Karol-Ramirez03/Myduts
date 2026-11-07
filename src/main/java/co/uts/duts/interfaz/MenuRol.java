@@ -9,6 +9,9 @@ import co.uts.duts.usuarios.Usuario;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -32,7 +35,7 @@ abstract class MenuRol extends JFrame {
         this.usuario = usuario;
         setTitle("MyDUTS - " + titulo);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(520, 430);
+        setSize(560, Math.min(780, Math.max(430, 130 + (opciones.length + 1) * 50)));
         setLocationRelativeTo(null);
 
         JLabel encabezado = new JLabel("Hola, " + usuario.getNombre(), JLabel.CENTER);
@@ -66,6 +69,14 @@ abstract class MenuRol extends JFrame {
             mostrarPromedios();
         } else if ("Historial de transacciones".equals(opcion)) {
             mostrarHistorialTransacciones();
+        } else if ("Extracto de transacciones".equals(opcion)) {
+            generarExtractoMensual();
+        } else if ("Ranking DUTS".equals(opcion)) {
+            mostrarRankingDuts();
+        } else if ("Calculadora de notas".equals(opcion)) {
+            abrirCalculadoraNotas();
+        } else if ("Preguntas frecuentes".equals(opcion)) {
+            PreguntasFrecuentesVentana.abrir(this, usuario);
         } else if ("Novedades".equals(opcion) || "Novedades y eventos".equals(opcion)) {
             setVisible(false);
             if ("ADMIN".equals(usuario.getRol())) {
@@ -257,6 +268,91 @@ abstract class MenuRol extends JFrame {
                     "Filtro inválido", JOptionPane.WARNING_MESSAGE);
         } catch (Exception ex) {
             mostrarError(ex);
+        }
+    }
+
+    private void generarExtractoMensual() {
+        try {
+            Path archivo = servicioDuts.generarExtractoMensual(usuario.getId());
+            String contenido = Files.readString(archivo, StandardCharsets.UTF_8);
+            JTextArea area = new JTextArea(contenido, 22, 64);
+            area.setEditable(false);
+            area.setCaretPosition(0);
+            JPanel panel = new JPanel(new BorderLayout(8, 8));
+            panel.add(new JLabel("Archivo generado: " + archivo.toString()), BorderLayout.NORTH);
+            panel.add(new JScrollPane(area), BorderLayout.CENTER);
+            JOptionPane.showMessageDialog(this, panel, "Extracto del último mes",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            mostrarError(ex);
+        }
+    }
+
+    private void mostrarRankingDuts() {
+        try {
+            List<Estudiante> ranking = servicioDuts.rankingDuts(10);
+            if (ranking.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Todavía no hay estudiantes para mostrar.",
+                        "Ranking DUTS", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            StringBuilder texto = new StringBuilder("Ranking de DUTS acumulados\nMeta de referencia: 70.000 DUTS en 2 semestres\n\n");
+            int puesto = 1;
+            for (Estudiante estudiante : ranking) {
+                int acumulados = estudiante.getCuenta().getDutsAcumulados();
+                double avance = Math.min(100.0, acumulados * 100.0 / co.uts.duts.duts.Cuenta.META_GRADUACION);
+                texto.append(puesto++).append(". ").append(estudiante.getNombre())
+                        .append(" — ").append(acumulados).append(" DUTS — ")
+                        .append(String.format("%.1f%%", avance)).append(" de la meta — ")
+                        .append(estudiante.semestresRestantes()).append(" semestres restantes\n");
+            }
+            JTextArea area = new JTextArea(texto.toString(), 16, 58);
+            area.setEditable(false);
+            JOptionPane.showMessageDialog(this, new JScrollPane(area), "Ranking DUTS",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException ex) {
+            mostrarError(ex);
+        }
+    }
+
+    private void abrirCalculadoraNotas() {
+        JTextField[] notas = {new JTextField(), new JTextField(), new JTextField()};
+        JTextField[] porcentajes = {new JTextField(), new JTextField(), new JTextField()};
+        JPanel panel = new JPanel(new GridLayout(0, 3, 8, 8));
+        panel.add(new JLabel("Actividad"));
+        panel.add(new JLabel("Nota (0 a 5)"));
+        panel.add(new JLabel("Porcentaje"));
+        for (int i = 0; i < 3; i++) {
+            panel.add(new JLabel("Nota " + (i + 1)));
+            panel.add(notas[i]);
+            panel.add(porcentajes[i]);
+        }
+        JOptionPane.showMessageDialog(this, "Ingresa tres notas y el porcentaje de cada una. "
+                + "Los porcentajes deben sumar 100.", "Calculadora de notas", JOptionPane.INFORMATION_MESSAGE);
+        if (JOptionPane.showConfirmDialog(this, panel, "Calculadora de notas",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) return;
+        try {
+            double sumaPorcentajes = 0;
+            double promedioPonderado = 0;
+            for (int i = 0; i < 3; i++) {
+                double nota = Double.parseDouble(notas[i].getText().trim().replace(',', '.'));
+                double porcentaje = Double.parseDouble(porcentajes[i].getText().trim().replace(',', '.'));
+                if (nota < 0 || nota > 5) throw new IllegalArgumentException("Cada nota debe estar entre 0 y 5.");
+                if (porcentaje < 0 || porcentaje > 100) throw new IllegalArgumentException("Cada porcentaje debe estar entre 0 y 100.");
+                sumaPorcentajes += porcentaje;
+                promedioPonderado += nota * porcentaje;
+            }
+            if (Math.abs(sumaPorcentajes - 100.0) > 0.001) {
+                throw new IllegalArgumentException("Los tres porcentajes deben sumar exactamente 100%.");
+            }
+            JOptionPane.showMessageDialog(this,
+                    String.format("Promedio ponderado: %.2f / 5.0", promedioPonderado / 100.0),
+                    "Resultado", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Completa las seis casillas con números válidos.",
+                    "Datos inválidos", JOptionPane.WARNING_MESSAGE);
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Datos inválidos", JOptionPane.WARNING_MESSAGE);
         }
     }
 

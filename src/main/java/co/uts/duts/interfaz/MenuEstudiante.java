@@ -6,7 +6,9 @@ import co.uts.duts.usuarios.Usuario;
 public class MenuEstudiante extends MenuRol {
     public MenuEstudiante(Usuario estudiante) {
         super(estudiante, "Estudiante", new String[] {
-            "Gestión DUTS", "Mi perfil", "Novedades", "Saldo", "Promedios", "Historial de transacciones"
+            "Gestión DUTS", "Mi perfil", "Novedades", "Saldo", "Promedios",
+            "Historial de transacciones", "Extracto de transacciones", "Ranking DUTS",
+            "Calculadora de notas", "Preguntas frecuentes"
         });
     }
 }

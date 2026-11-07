@@ -6,7 +6,7 @@ import co.uts.duts.usuarios.Usuario;
 public class MenuAdministrador extends MenuRol {
     public MenuAdministrador(Usuario administrador) {
         super(administrador, "Administrador", new String[] {
-            "Usuarios", "Novedades y eventos", "Gestión DUTS", "Perfil"
+            "Usuarios", "Novedades y eventos", "Gestión DUTS", "Preguntas frecuentes", "Perfil"
         });
     }
 }
