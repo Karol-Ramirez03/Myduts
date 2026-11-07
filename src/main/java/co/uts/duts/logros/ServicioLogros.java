@@ -7,7 +7,6 @@ import co.uts.duts.usuarios.Usuario;
 import java.io.IOException;
 import java.util.List;
 
-/** Desbloquea y consulta logros según los DUTS acumulados. */
 public class ServicioLogros {
     private final EstudianteArchivoRepository estudiantes = new EstudianteArchivoRepository();
     private final LogroArchivoRepository logros = new LogroArchivoRepository();

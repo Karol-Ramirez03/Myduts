@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-/** Guarda calificaciones de eventos en datos-texto/calificaciones_eventos.txt. */
 public class CalificacionEventoArchivoRepository {
     private static final Path ARCHIVO = Paths.get("datos-texto", "calificaciones_eventos.txt");
 

@@ -13,12 +13,9 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-/** Revisa hitos de DUTS y persiste los logros obtenidos en TXT. */
 public class LogroArchivoRepository {
     private static final Path ARCHIVO = Paths.get("datos-texto", "logros_obtenidos.txt");
     private static final List<Logro> CATALOGO = List.of(

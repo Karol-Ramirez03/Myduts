@@ -16,7 +16,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 
-/** Consulta usuarios y permite que un administrador cree otras cuentas administradoras. */
 public class UsuariosAdministracionVentana extends JDialog {
     private final Usuario administrador;
     private final EstudianteArchivoRepository repositorio = new EstudianteArchivoRepository();

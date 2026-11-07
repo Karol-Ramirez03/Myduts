@@ -2,7 +2,6 @@ package co.uts.duts.logros;
 
 import java.time.LocalDateTime;
 
-/** Hito desbloqueado por un estudiante al acumular DUTS. */
 public class Logro {
     private final String codigo;
     private final String nombre;

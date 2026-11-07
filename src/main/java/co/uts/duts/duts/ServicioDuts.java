@@ -29,7 +29,7 @@ public class ServicioDuts {
     private static final DateTimeFormatter FORMATO_FECHA_EXTRACTO = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     /** Valida una transferencia y la devuelve sin aplicarla ni guardarla. */
-    public synchronized Transferencia previsualizarTransferencia(long idOrigen, String correoDestino, int monto)
+    public Transferencia previsualizarTransferencia(long idOrigen, String correoDestino, int monto)
             throws IOException, ValidacionException, SaldoInsuficienteException {
         List<Usuario> lista = usuarios.listar();
         Estudiante origen = estudiantePorId(lista, idOrigen);

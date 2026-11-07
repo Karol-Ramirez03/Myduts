@@ -2,7 +2,6 @@ package co.uts.duts.novedades;
 
 import java.time.LocalDateTime;
 
-/** Calificación escrita por un estudiante para un evento al que asistió/estuvo inscrito. */
 public class CalificacionEvento {
     private final long idEstudiante;
     private final long idNovedad;

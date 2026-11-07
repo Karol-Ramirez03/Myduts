@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Reglas para que estudiantes califiquen eventos ya finalizados. */
 public class ServicioCalificaciones {
     private final EstudianteArchivoRepository usuarios = new EstudianteArchivoRepository();
     private final InscripcionArchivoRepository inscripciones = new InscripcionArchivoRepository();
